@@ -2,8 +2,7 @@
 
 ## Database Schema Design
 
-`<insert database schema design here>`
-
+ ![Screen Shot](./AirBnB/Screen Shot 2024-09-16 at 8.31.41 PM.png)
 ## API Documentation
 
 ## USER AUTHENTICATION/AUTHORIZATION
