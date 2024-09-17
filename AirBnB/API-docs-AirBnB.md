@@ -1,8 +1,9 @@
-# `<name of application here>`
+# `<AirBnB Clone>`
 
 ## Database Schema Design
 
- ![Screen Shot](./AirBnB/Screen Shot 2024-09-16 at 8.31.41 PM.png)
+ ![Screenshot of db schema](./ScreenShot.png)
+
 ## API Documentation
 
 ## USER AUTHENTICATION/AUTHORIZATION
