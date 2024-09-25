@@ -17,6 +17,9 @@ router.get('/',async(req, res) => {
   
 });
 
+
+
+
 //POST/spots - Create a new spot
 router.post('/', async(req, res) => {
   const { ownerId, address, city, state, country, lat, lng, name, description, price } = req.body;
