@@ -1,3 +1,4 @@
+// Import necessary modules and middleware
 const express = require('express');
 require('express-async-errors');
 const morgan = require('morgan');
@@ -5,26 +6,31 @@ const cors = require('cors');
 const csurf = require('csurf');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-
 const { environment } = require('./config');
+const { restoreUser,requireAuth } = require('./utils/auth');
+const routes = require('./routes');
+const { ValidationError } = require('sequelize');
+
+// Determine if the environment is production
 const isProduction = environment === 'production';
 
+// Initialize the express application
 const app = express();
 
-
+// Middleware to log HTTP requests
 app.use(morgan('dev'));
 
+// Parse cookies and JSON bodies
 app.use(cookieParser());
 app.use(express.json());
 
-
 // Security Middleware
 if (!isProduction) {
-  // enable cors only in development
+  // Enable CORS only in development
   app.use(cors());
 }
 
-// helmet helps set a variety of headers to better secure your app
+// Helmet helps set a variety of headers to better secure your app
 app.use(
   helmet.crossOriginResourcePolicy({
     policy: "cross-origin"
@@ -42,15 +48,13 @@ app.use(
   })
 );
 
+// Restore user based on the JWT in the cookie
+app.use(restoreUser);
 
-// backend/app.js
-const routes = require('./routes');
+// Connect all the routes
+app.use(routes);
 
-// ...
-
-app.use(routes); // Connect all the routes
-
-// Catch unhandled requests and forward to error handler.
+// Catch unhandled requests and forward them to the error handler
 app.use((_req, _res, next) => {
   const err = new Error("The requested resource couldn't be found.");
   err.title = "Resource Not Found";
@@ -59,18 +63,10 @@ app.use((_req, _res, next) => {
   next(err);
 });
 
-
-// backend/app.js
-// ...
-const { ValidationError } = require('sequelize');
-
-// ...
-
-// Process sequelize errors
+// Process Sequelize errors
 app.use((err, _req, _res, next) => {
-  // check if error is a Sequelize error:
   if (err instanceof ValidationError) {
-    let errors = {};
+    const errors = {};
     for (let error of err.errors) {
       errors[error.path] = error.message;
     }
@@ -80,9 +76,7 @@ app.use((err, _req, _res, next) => {
   next(err);
 });
 
-// backend/app.js
-// ...
-// Error formatter
+// Error formatter for all types of errors
 app.use((err, _req, res, _next) => {
   res.status(err.status || 500);
   console.error(err);
@@ -94,6 +88,5 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-
-
+// Export the app for use in other files
 module.exports = app;
