@@ -69,7 +69,7 @@ router.delete('/bookings/:id', async (req, res) => {
 });
 
 
-//POST/bookings/:bookingId -- Edit a Booking
+//PUT/bookings/:bookingId -- Edit a Booking
 router.put('/:bookingId', requireAuth, async (req, res) => {
   const { bookingId } = req.params;
   const { startDate, endDate } = req.body;

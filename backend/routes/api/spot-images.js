@@ -1,15 +1,7 @@
 const express = require('express');
 const{ Op } = require('sequelize');
-
-
 const { Spots,SpotImages,bookings, reviewImages,reviews,User,sequelize} = require('../../db/models');
-
-
-
 const { requireAuth } = require('../../utils/auth');
-
-
-
 const router = express.Router();
 
 
