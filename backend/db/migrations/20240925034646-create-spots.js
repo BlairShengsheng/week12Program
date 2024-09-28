@@ -63,16 +63,11 @@ module.exports = {
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP")
       }
 
-    });
+    },options);
   },
 
   async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-    await queryInterface.dropTable('Spots');
+    options.tableName = 'Spots';
+    return queryInterface.dropTable(options);
   }
 };
