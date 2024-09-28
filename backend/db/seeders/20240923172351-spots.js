@@ -87,7 +87,7 @@ module.exports = {
     "price": 290
    },
    {
-    "ownerId": 27,
+    "ownerId": 7,
     "address": "382 Big Man Ave",
     "city":"Granbury",
     "state": "Texas",
@@ -147,7 +147,7 @@ module.exports = {
     "price": 328
    },
    {
-    "ownerId": 22,
+    "ownerId": 12,
     "address": "987 Napa Valley Street",
     "city": "Napa Valley",
     "state": "Washington DC",
@@ -160,7 +160,7 @@ module.exports = {
 
    },
    {
-    "ownerId": 23,
+    "ownerId": 13,
     "address": "654 Tuscan Villa Ave",
     "city": "Fairfield",
     "state": "California",
@@ -172,7 +172,7 @@ module.exports = {
     "price": 929
    },
    {
-    "ownerId": 24,
+    "ownerId": 14,
     "address": "726 Honard Vinary Rd",
     "city": "Sea Ranch Vally",
     "state": "Virgina",
@@ -184,7 +184,7 @@ module.exports = {
     "price": 880
    },
    {
-    "ownerId": 25,
+    "ownerId": 15,
     "address": "899 Sealand Street",
     "city": "Sealand",
     "state": "Chicago",
@@ -196,7 +196,7 @@ module.exports = {
     "price": 983
    },
    {
-    "ownerId": 26,
+    "ownerId": 16,
     "address": "395 Upfunk Street",
     "city": "Los Angeles",
     "state": "California",
@@ -220,7 +220,7 @@ module.exports = {
     "price": 999
    },
    {
-    "ownerId": 28,
+    "ownerId": 18,
     "address": "8834 Selina B Street",
     "city": "Concord",
     "state": "California",
@@ -232,7 +232,7 @@ module.exports = {
     "price": 452
    },
    {
-    "ownerId": 29,
+    "ownerId": 19,
     "address": "883 Temu Street",
     "city": "Orlando",
     "state": "Florida",
@@ -263,7 +263,7 @@ module.exports = {
     options.tableName = 'Spots';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      ownerId: { [Op.in]: [1,2,3,4,5] }
+      ownerId: { [Op.in]: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] }
     }, {});
   }
 };
