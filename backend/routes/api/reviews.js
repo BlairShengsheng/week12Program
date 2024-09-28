@@ -5,36 +5,79 @@ const{ Op } = require('sequelize');
 const router = express.Router();
 const { Spots,bookings, reviewImages,reviews,User,sequelize } = require('../../db/models');
 
+const { handleValidationErrors } = require('../../utils/validation');
+const dialect = sequelize.getDialect()
+const schema = process.env.SCHEMA;
+const mode = dialect === 'postgres' && schema ? `"${schema}".` : '';
+
 // GET/reviews/current - Fetch all the reviews of the current user
+
+// router.get('/current', requireAuth, async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+
+//     const review = await reviews.findAll({
+//       where: { userId },
+//       include: [
+//         {
+//           model: User,
+//           as: 'User', // Use the correct alias here
+//           attributes: ['id', 'username', 'firstName', 'lastName']
+//         },
+//         {
+//           model:Spots,
+//           attributes: ['id','ownerId','address','city','state','country','lat','lng','name','price','previewImage']
+//         },
+//         {
+//           model: reviewImages,
+//           attributes:['id','url']
+//         }
+//       ]
+//     });
+
+//     res.status(200).json({review});
+//   } catch (error) {
+//     console.error('Error fetching reviews:', error);
+//     res.status(500).json({ message: 'An error occurred while fetching the review.' });
+//   }
+// });
+
 router.get('/current', requireAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const review = await reviews.findAll({
-      where: { userId },
+  const Reviews = await reviews.findAll({
+      where: {
+          userId: req.user.id
+      },
       include: [
-        {
-          model: User,
-          as: 'User', // Use the correct alias here
-          attributes: ['id', 'username', 'firstName', 'lastName']
-        },
-        {
-          model:Spots,
-          attributes: ['id','ownerId','address','city','state','country','lat','lng','name','price','previewImage']
-        },
-        {
-          model: reviewImages,
-          attributes:['id','url']
-        }
+          { model: User, attributes: ['id', 'firstName', 'lastName']
+          },
+          {   model: Spots,
+              attributes: {
+                  include: [
+                      [
+                          sequelize.literal(`(
+                              SELECT COALESCE((
+                                  SELECT "url"
+                                  FROM ${mode}"SpotImages"
+                                  WHERE ${mode}"SpotImages"."spotId" = "Spot"."id" AND ${mode}"SpotImages"."preview" = true
+                                  LIMIT 1
+                              ), 'no preview image')
+                          )`),
+                          'previewImage'
+                      ]
+                  ],
+                  exclude: ['createdAt', 'description', 'updatedAt']
+              }
+          },
+          {
+              model: reviewImages,
+              as: "ReviewImages",
+              attributes: ['id', 'url']
+          }
       ]
-    });
-
-    res.status(200).json(review);
-  } catch (error) {
-    console.error('Error fetching reviews:', error);
-    res.status(500).json({ message: 'An error occurred while fetching the review.' });
-  }
+  });
+  return res.status(200).json({ Reviews });
 });
+
 
 
 
