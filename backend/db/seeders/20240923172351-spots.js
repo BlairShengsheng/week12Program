@@ -51,7 +51,7 @@ module.exports = {
     "price": 329
    },
    {
-    "ownerId": 14,
+    "ownerId": 4,
     "address": "326 Cobber Rd",
     "city": "Winter Vally",
     "state": "New York",
@@ -63,7 +63,7 @@ module.exports = {
     "price": 500
    },
    {
-    "ownerId": 15,
+    "ownerId": 5,
     "address": "693 groveland Street",
     "city": "Groveland",
     "state": "Colorado",
@@ -261,7 +261,9 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Spots';
-    // const Op = Sequelize.Op;
-    return queryInterface.bulkDelete(options, null,{});
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      ownerId: { [Op.in]: [1,2,3,4,5] }
+    }, {});
   }
 };

@@ -58,7 +58,7 @@ module.exports = {
       endDate: "2022-04-26"
     },
     {
-      spotId: 8,
+      spotId: 4,
       userId: 5,
       startDate: "2020-08-01",
       endDate: "2022-09-16"
@@ -85,8 +85,9 @@ module.exports = {
   },
   async down (queryInterface, Sequelize) {
     options.tableName = 'bookings';
-    // const Op = Sequelize.Op;
-    return queryInterface.bulkDelete(options, null,{});
-
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      spotId: { [Op.in]: [1,2,3,4] }
+    }, {});
   }
 };

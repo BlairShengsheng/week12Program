@@ -55,7 +55,7 @@ module.exports = {
 
     {
       userId: 2,
-      spotId: 13,
+      spotId: 3,
       "review": "Great place to rent",
       "stars": 5.0
     },
@@ -73,7 +73,7 @@ module.exports = {
     },
     {
       userId: 2,
-      spotId: 11,
+      spotId: 4,
       "review": "I can't say enough good things about this place. The hosts were communicative and clear, and made our stay easy and hassle-free. The house is massive.",
       "stars": 5.0
     },
