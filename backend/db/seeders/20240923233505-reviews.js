@@ -1,17 +1,20 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
+
+const { reviews } = require('../models');
+
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
+
 module.exports = {
+
+  
   async up (queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
+
    await queryInterface.bulkInsert('reviews',[
     {
       userId: 5,
@@ -33,19 +36,19 @@ module.exports = {
     },
     {
       userId: 2,
-      spotId: 11,
+      spotId: 3,
       "review": "beautiful house and amazing view!",
       "stars": 5.0
     },
     {
       userId: 4,
-      spotId: 10,
+      spotId: 4,
       "review": "comforting and cozy environment",
       "stars": 5.0
     },
     {
       userId: 5,
-      spotId: 8,
+      spotId: 5,
       "review": "Fantastic house, and dock, views and host!",
       "stars": 5.0
     },
@@ -102,12 +105,10 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
-    await queryInterface.bulkDelete('reviews', null, {})
+    options.tableName = 'reviews';
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      spotId: { [Op.in]: [1,2,3,4] }
+    }, {});
   }
 };

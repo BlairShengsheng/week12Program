@@ -1,6 +1,14 @@
 'use strict';
 
+const { bookings } = require('../models');
+
 /** @type {import('sequelize-cli').Migration} */
+
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     /**
@@ -76,12 +84,10 @@ module.exports = {
   ]);
   },
   async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
-    await queryInterface.bulkDelete('bookings',null,{})
+    options.tableName = 'bookings';
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      spotId: { [Op.in]: [1,2,3,4] }
+    }, {});
   }
 };

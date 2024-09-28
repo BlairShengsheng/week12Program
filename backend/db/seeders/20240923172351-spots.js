@@ -1,17 +1,17 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
+
+const { Spots } = require('../models');
+
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
 module.exports = {
   async up (queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
+
    await queryInterface.bulkInsert('Spots',[
     {
     "ownerId": 1,
@@ -260,12 +260,10 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
-    await queryInterface.bulkDelete('Spots', null, {});
+    options.tableName = 'Spots';
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      ownerId: { [Op.in]: [1,2,3,4,5] }
+    }, {});
   }
 };
