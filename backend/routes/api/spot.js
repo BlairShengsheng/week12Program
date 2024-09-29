@@ -19,16 +19,16 @@ const addAvgRatingAndPreviewImage = {
       [
         sequelize.literal(`(
           SELECT AVG("reviews"."stars")
-          FROM "reviews"
-          WHERE "reviews"."spotId" = "Spots"."id"
+          FROM ${mode}"reviews"
+          WHERE ${mode}"reviews"."spotId" = "Spots"."id"
         )`),
         'avgRating'
       ],
       [
         sequelize.literal(`(
           SELECT "url"
-          FROM "SpotImages"
-          WHERE "SpotImages"."spotId" = "Spots"."id" AND "SpotImages"."preview" = true
+          FROM ${mode}"SpotImages"
+          WHERE ${mode}"SpotImages"."spotId" = "Spots"."id" AND "SpotImages"."preview" = true
           LIMIT 1
         )`),
         'previewImage'
@@ -102,7 +102,9 @@ router.get('/', async (req, res) => {
       ...addAvgRatingAndPreviewImage,
       limit: size,
       offset: (page - 1) * size,
-    });
+    },
+
+  );
 
     // Format the response to ensure numerical fields are properly typed
     const formattedSpots = spots.map(spot => ({
@@ -286,7 +288,7 @@ router.post('/', requireAuth, async (req, res) => {
 
 //POST/spots/:spotId/images -- add an image to a spot
 router.post('/:spotId/images',requireAuth,  async(req, res) => {
-  const { spotId } = req.params;
+  const { spotId } = req.params; //req.params.spotId
   const {url, preview} = req.body;
   const { user } = req;// Assuming `requireAuth` middleware attaches the current user to `req.user`
   try {
@@ -308,9 +310,9 @@ router.post('/:spotId/images',requireAuth,  async(req, res) => {
       preview
     })
     return res.status(201).json({
-      "id": newImage.id,
-      "url": newImage.url,
-      "preview": newImage.preview
+      id: newImage.id,
+      url: newImage.url,
+      preview: newImage.preview
     });
 
   }catch(error){
