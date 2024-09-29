@@ -12,13 +12,33 @@ const schema = process.env.SCHEMA;
 const mode = dialect === 'postgres' && schema ? `"${schema}".` : '';
 
 
-
-
-
-
+// Helper for avgRating and previewImage
+const addAvgRatingAndPreviewImage = {
+  attributes: {
+    include: [
+      [
+        sequelize.literal(`(
+          SELECT AVG("reviews"."stars")
+          FROM "reviews"
+          WHERE "reviews"."spotId" = "Spots"."id"
+        )`),
+        'avgRating'
+      ],
+      [
+        sequelize.literal(`(
+          SELECT "url"
+          FROM "SpotImages"
+          WHERE "SpotImages"."spotId" = "Spots"."id" AND "SpotImages"."preview" = true
+          LIMIT 1
+        )`),
+        'previewImage'
+      ]
+    ]
+  },
+};
 
 // GET /api/spots - Get all Spots with Query Filters
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', async (req, res) => {
   // Extract query parameters with default values
   let { page = 1, size = 20, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
 
@@ -53,24 +73,59 @@ router.get('/', requireAuth, async (req, res) => {
 
   // Create filtering conditions based on query parameters
   const filters = {};
-  if (minLat !== null) filters.lat = { [Op.gte]: minLat };
-  if (maxLat !== null) filters.lat = { [Op.lte]: maxLat };
-  if (minLng !== null) filters.lng = { [Op.gte]: minLng };
-  if (maxLng !== null) filters.lng = { [Op.lte]: maxLng };
-  if (minPrice !== null) filters.price = { [Op.gte]: minPrice };
-  if (maxPrice !== null) filters.price = { [Op.lte]: maxPrice };
+
+  // Latitude filters
+  if (minLat !== null || maxLat !== null) {
+    filters.lat = {};
+    if (minLat !== null) filters.lat[Op.gte] = minLat;
+    if (maxLat !== null) filters.lat[Op.lte] = maxLat;
+  }
+
+  // Longitude filters
+  if (minLng !== null || maxLng !== null) {
+    filters.lng = {};
+    if (minLng !== null) filters.lng[Op.gte] = minLng;
+    if (maxLng !== null) filters.lng[Op.lte] = maxLng;
+  }
+
+  // Price filters
+  if (minPrice !== null || maxPrice !== null) {
+    filters.price = {};
+    if (minPrice !== null) filters.price[Op.gte] = minPrice;
+    if (maxPrice !== null) filters.price[Op.lte] = maxPrice;
+  }
 
   try {
-    // Retrieve spots with pagination and filters
+    // Retrieve spots with pagination and filters, including avgRating and previewImage
     const spots = await Spots.findAll({
       where: filters,
+      ...addAvgRatingAndPreviewImage,
       limit: size,
       offset: (page - 1) * size,
     });
 
+    // Format the response to ensure numerical fields are properly typed
+    const formattedSpots = spots.map(spot => ({
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: parseFloat(spot.lat),
+      lng: parseFloat(spot.lng),
+      name: spot.name,
+      description: spot.description,
+      price: parseFloat(spot.price),
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      avgRating: spot.avgRating ? parseFloat(spot.avgRating).toFixed(1) : null,
+      previewImage: spot.previewImage || null
+    }));
+
     // Send the response
     return res.status(200).json({
-      Spots: spots,
+      Spots: formattedSpots,
       page,
       size
     });
@@ -86,30 +141,106 @@ router.get('/', requireAuth, async (req, res) => {
 
 
 
-//helper function 
-const addAvgRatingAndPreviewImage = {
-  attributes: {
-    include: [
-      [
-        sequelize.literal(`(
-          SELECT AVG("reviews"."stars")
-          FROM ${mode}"reviews"
-          WHERE ${mode}"reviews"."spotId" = "Spots"."id"
-        )`),
-        'avgRating'
-      ],
-      [
-        sequelize.literal(`(
-          SELECT "url"
-          FROM ${mode}"SpotImages"
-          WHERE ${mode}"SpotImages"."spotId" = "Spots"."id" AND ${mode}"SpotImages"."preview" = true
-          LIMIT 1
-        )`),
-        'previewImage'
-      ]
-    ]
-  },
-};
+
+// // GET /api/spots - Get all Spots with Query Filters
+// router.get('/', requireAuth, async (req, res) => {
+//   // Extract query parameters with default values
+//   let { page = 1, size = 20, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
+
+//   // Convert query parameters to numbers if they exist
+//   page = parseInt(page);
+//   size = parseInt(size);
+//   minLat = minLat ? parseFloat(minLat) : null;
+//   maxLat = maxLat ? parseFloat(maxLat) : null;
+//   minLng = minLng ? parseFloat(minLng) : null;
+//   maxLng = maxLng ? parseFloat(maxLng) : null;
+//   minPrice = minPrice ? parseFloat(minPrice) : null;
+//   maxPrice = maxPrice ? parseFloat(maxPrice) : null;
+
+//   // Validate query parameters
+//   const errors = {};
+//   if (isNaN(page) || page < 1) errors.page = "Page must be greater than or equal to 1";
+//   if (isNaN(size) || size < 1 || size > 20) errors.size = "Size must be between 1 and 20";
+//   if (minLat !== null && isNaN(minLat)) errors.minLat = "Minimum latitude is invalid";
+//   if (maxLat !== null && isNaN(maxLat)) errors.maxLat = "Maximum latitude is invalid";
+//   if (minLng !== null && isNaN(minLng)) errors.minLng = "Minimum longitude is invalid";
+//   if (maxLng !== null && isNaN(maxLng)) errors.maxLng = "Maximum longitude is invalid";
+//   if (minPrice !== null && (isNaN(minPrice) || minPrice < 0)) errors.minPrice = "Minimum price must be greater than or equal to 0";
+//   if (maxPrice !== null && (isNaN(maxPrice) || maxPrice < 0)) errors.maxPrice = "Maximum price must be greater than or equal to 0";
+
+//   // If there are validation errors, return a 400 response
+//   if (Object.keys(errors).length > 0) {
+//     return res.status(400).json({
+//       message: "Bad Request",
+//       errors
+//     });
+//   }
+
+//   // Create filtering conditions based on query parameters
+//   const filters = {};
+//   if (minLat !== null) filters.lat = { [Op.gte]: minLat };
+//   if (maxLat !== null) filters.lat = { [Op.lte]: maxLat };
+//   if (minLng !== null) filters.lng = { [Op.gte]: minLng };
+//   if (maxLng !== null) filters.lng = { [Op.lte]: maxLng };
+//   if (minPrice !== null) filters.price = { [Op.gte]: minPrice };
+//   if (maxPrice !== null) filters.price = { [Op.lte]: maxPrice };
+
+//   try {
+//     // Retrieve spots with pagination and filters
+//     const spots = await Spots.findAll({
+//       where: filters,
+//       limit: size,
+//       offset: (page - 1) * size,
+//     });
+
+//     // Send the response
+//     return res.status(200).json({
+//       Spots: spots,
+//       page,
+//       size
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       message: "Internal Server Error",
+//       errors: { error: error.message }
+//     });
+//   }
+// });
+
+
+
+// //helper function 
+// const addAvgRatingAndPreviewImage = {
+//   attributes: {
+//     include: [
+//       [
+//         sequelize.literal(`(
+//           SELECT AVG("reviews"."stars")
+//           FROM ${mode}"reviews"
+//           WHERE ${mode}"reviews"."spotId" = "Spots"."id"
+//         )`),
+//         'avgRating'
+//       ],
+//       [
+//         sequelize.literal(`(
+//           SELECT "url"
+//           FROM ${mode}"SpotImages"
+//           WHERE ${mode}"SpotImages"."spotId" = "Spots"."id" AND ${mode}"SpotImages"."preview" = true
+//           LIMIT 1
+//         )`),
+//         'previewImage'
+//       ]
+//     ]
+//   },
+// };
+
+
+
+
+
+
 
 
 // //GET/spots - Fetch all the spots -- that is mine
