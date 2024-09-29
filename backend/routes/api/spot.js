@@ -230,12 +230,12 @@ router.get('/current', requireAuth, async(req,res) => {
                       include: [
                           [literal(`(
                               SELECT AVG(stars) 
-                              FROM "blair_db"."reviews" 
+                              FROM "home_stay_vacation"."reviews" 
                               WHERE "reviews"."spotId" = "Spots".id
                               )`), 'avgRating'],  
                           [literal(`(
                               SELECT url 
-                              FROM "blair_db"."SpotImages" 
+                              FROM "home_stay_vacation"."SpotImages" 
                               WHERE "SpotImages"."spotId" = "Spots".id 
                                   AND "SpotImages".preview = true 
                               LIMIT 1
