@@ -117,31 +117,31 @@ router.get('/',
     /*** end search filters ***/
 
     try {
-      const allSpots = await Spot.findAll({
+      const allSpots = await Spots.findAll({
         offset: (page - 1) * size,
         limit: size,
         where,
         attributes: [ 
           'id', 'ownerId', 'address', 'city', 'state', 'country',
           'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-          [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'] // Calculate average rating
+          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'] // Calculate average rating
         ],
         include: [
           {
-            model: SpotImage, // Include associated images
+            model: SpotImages, // Include associated images
             attributes: ['url'], // Get image URL
             where: { preview: true },
             required: false,
             duplicating: false,
           },
           {
-            model: Review,
+            model: reviews,
             attributes: [],
             required: false,
             duplicating: false,
           }
         ],
-        group: ['Spot.id', 'SpotImages.id']
+        group: ['Spots.id', 'SpotImages.id']
       });
       
       const allSpotsArray = allSpots.map(spot => {
