@@ -124,7 +124,7 @@ router.get('/',
         attributes: [ 
           'id', 'ownerId', 'address', 'city', 'state', 'country',
           'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'] // Calculate average rating
+          [sequelize.fn('AVG', sequelize.col('reviews.stars')), 'avgRating'] // Calculate average rating
         ],
         include: [
           {
