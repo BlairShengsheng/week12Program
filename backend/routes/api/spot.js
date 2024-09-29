@@ -2,7 +2,7 @@ const express = require('express');
 const { requireAuth,restoreUser} = require('../../utils/auth');
 const{ literal,Op } = require('sequelize');
 const router = express.Router();
-const { Spots,bookings, SpotImages,reviewImages,reviews,User,sequelize} = require('../../db/models');
+const { Spots,bookings, SpotImages,reviewImages,reviews,Users,sequelize} = require('../../db/models');
 const { up } = require('../../db/seeders/20240919033859-demo-user');
 const { handleValidationErrors } = require('../../utils/validation');
 const { check } = require('express-validator');
@@ -169,99 +169,23 @@ const addAvgRatingAndPreviewImage = {
 
 
 //GET/spots/current - Fetch all spots owned by current user // z
-// router.get('/current',requireAuth, async (req,res) =>{
+router.get('/current',requireAuth, async (req,res) =>{
 
-//   const userId = req.user.id
-//   const spots = await Spots.findAll({
-//       where:{ownerId:userId},
-//       ...addAvgRatingAndPreviewImage
-//   })
+  const userId = req.user.id
+  const spots = await Spots.findAll({
+      where:{ownerId:userId},
+      ...addAvgRatingAndPreviewImage
+  })
 
-//   const changed = spots.map(spot => ({
-//     ...spot.toJSON(),
-//     price: Number(spot.price)
-// }));
+  const changed = spots.map(spot => ({
+    ...spot.toJSON(),
+    price: Number(spot.price)
+}));
 
-//   return res.json({
-//       Spots:changed
-//   })
-// })
-
-
-
-//GET/spots/current - Fetch all spots owned by current user --- that g
-
-// router.get('/current', requireAuth, async(req,res) => {
-//   const { user } = req;
-//   if (user) {
-//       try{
-//           let spots;
-//           let environment;
-//           if(environment==="local-testing"){ 
-//               spots = await Spots.findAll({
-//                   where : {ownerId : user.id},
-//                   attributes: {
-//                       include: [
-//                           [literal(`(
-//                               SELECT AVG(stars) 
-//                               FROM "reviews" 
-//                               WHERE "reviews"."spotId" = Spots.id
-//                               )`), 'avgRating'], 
-//                           [literal(`(
-//                               SELECT url 
-//                               FROM "SpotImages" 
-//                               WHERE "SpotImages"."spotId" = Spots.id 
-//                                   AND "SpotImages".preview = true 
-//                               LIMIT 1
-//                               )`), 'previewImage']  
-//                       ]
-//                   },
-//                   raw: true
-//               });
-//           } else { // production environment
-//               spots = await Spots.findAll({
-//                   where : {ownerId : user.id},
-//                   attributes: {
-//                       include: [
-//                           [literal(`(
-//                               SELECT AVG(stars) 
-//                               FROM "home_stay_vacation"."reviews" 
-//                               WHERE "reviews"."spotId" = "Spots".id
-//                               )`), 'avgRating'],  
-//                           [literal(`(
-//                               SELECT url 
-//                               FROM "home_stay_vacation"."SpotImages" 
-//                               WHERE "SpotImages"."spotId" = "Spots".id 
-//                                   AND "SpotImages".preview = true 
-//                               LIMIT 1
-//                               )`), 'previewImage']  
-//                       ]
-//                   },
-//                   raw: true
-//               });
-//           }
-
-//           return res.status(200).json({Spots:spots})
-//       } catch (error) {
-//           console.error('Error details:', error.message);  
-//           console.error('Stack trace:', error.stack);  
-//           res.status(500).json({ error: 'An error occurred while fetching spots.' });
-//       }
-//   } else {
-//       res.status(401)
-//       return res.json({
-//           "message": "Authentication required"
-//         });
-//   }
-// })
-
-
-
-
-
-
-
-
+  return res.json({
+      Spots:changed
+  })
+})
 
 
 
@@ -309,7 +233,7 @@ router.get('/:spotId', async (req, res) => {
                     attributes: ['id', 'url', 'preview']
                 },
                 {
-                    model: User,
+                    model: Users,
                     as: 'Owner',
                     attributes: ['id', 'firstName', 'lastName']
                 }
@@ -530,7 +454,7 @@ router.get('/:spotId/reviews', requireAuth, async(req, res) => {
       where:{ spotId },
       include: [
         {
-          model: User,
+          model: Users,
           attributes: ['id','firstName', 'lastName']
         },
         {
@@ -627,7 +551,7 @@ router.get('/:spotId/bookings',requireAuth,  async(req, res) => {
       where:{spotId},
       include: [
         {
-          model: User,
+          model: Users,
           attributes: ['id', 'username','email']
         }
       ]

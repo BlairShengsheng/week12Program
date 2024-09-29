@@ -2,7 +2,7 @@ const express = require('express');
 const{ Op } = require('sequelize');
 const { requireAuth } = require('../../utils/auth');
 
-const { Spots,bookings,reviewImages,reviews,User,sequelize} = require('../../db/models');
+const { Spots,bookings,reviewImages,reviews,Users,sequelize} = require('../../db/models');
 const router = express.Router();
 
 // DELETE /api/review-images/:imageId - Delete a Review Image
