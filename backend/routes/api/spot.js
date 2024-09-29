@@ -307,11 +307,11 @@ router.post('/:spotId/images',requireAuth,  async(req, res) => {
       url,
       preview
     })
-    return res.status(201).json([{
+    return res.status(201).json({
       "id": newImage.id,
       "url": newImage.url,
       "preview": newImage.preview
-    }]);
+    });
 
   }catch(error){
     console.error(error);
