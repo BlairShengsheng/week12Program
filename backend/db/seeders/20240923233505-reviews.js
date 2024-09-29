@@ -15,7 +15,7 @@ module.exports = {
   
   async up (queryInterface, Sequelize) {
 
-   await queryInterface.bulkInsert('reviews',[
+   await queryInterface.bulkCreate('reviews',[
     {
       userId: 5,
       spotId: 1,
@@ -101,7 +101,7 @@ module.exports = {
       "review": "Great location and a fun time with all the amenities on the property!",
       "stars": 5.0
     },
-   ]);
+   ],{validate: true});
   },
 
   async down (queryInterface, Sequelize) {

@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up (queryInterface, Sequelize) {
 
-   await queryInterface.bulkInsert('Spots',[
+   await queryInterface.bulkCreate('Spots',[
     {
     "ownerId": 1,
     "address": "556 Tracy Street",
@@ -256,7 +256,7 @@ module.exports = {
     "price": 895
    }
    
-  ])
+  ],{validate: true})
   },
 
   async down (queryInterface, Sequelize) {

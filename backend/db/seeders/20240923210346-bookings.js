@@ -20,7 +20,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('bookings',[
+   await queryInterface.bulkCreate('bookings',[
     {
       spotId: 1,
       userId: 2,
@@ -81,7 +81,7 @@ module.exports = {
       startDate: "2020-08-12",
       endDate: "2022-04-26"
     },
-  ]);
+  ],{validate: true});
   },
   async down (queryInterface, Sequelize) {
     options.tableName = 'bookings';
