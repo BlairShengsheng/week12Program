@@ -196,72 +196,118 @@ router.get('/',async(req, res) => {
 
 
 
-router.get('/current', requireAuth, async(req,res) => {
-  const { user } = req;
-  if (user) {
-      try{
-          let spots;
-          let environment;
-          if(environment==="local-testing"){ 
-              spots = await Spots.findAll({
-                  where : {ownerId : user.id},
-                  attributes: {
-                      include: [
-                          [literal(`(
-                              SELECT AVG(stars) 
-                              FROM "reviews" 
-                              WHERE "reviews"."spotId" = Spots.id
-                              )`), 'avgRating'], 
-                          [literal(`(
-                              SELECT url 
-                              FROM "SpotImages" 
-                              WHERE "SpotImages"."spotId" = Spots.id 
-                                  AND "SpotImages".preview = true 
-                              LIMIT 1
-                              )`), 'previewImage']  
-                      ]
-                  },
-                  raw: true
-              });
-          } else { // production environment
-              spots = await Spots.findAll({
-                  where : {ownerId : user.id},
-                  attributes: {
-                      include: [
-                          [literal(`(
-                              SELECT AVG(stars) 
-                              FROM "home_stay_vacation"."reviews" 
-                              WHERE "reviews"."spotId" = "Spots".id
-                              )`), 'avgRating'],  
-                          [literal(`(
-                              SELECT url 
-                              FROM "home_stay_vacation"."SpotImages" 
-                              WHERE "SpotImages"."spotId" = "Spots".id 
-                                  AND "SpotImages".preview = true 
-                              LIMIT 1
-                              )`), 'previewImage']  
-                      ]
-                  },
-                  raw: true
-              });
-          }
+// router.get('/current', requireAuth, async(req,res) => {
+//   const { user } = req;
+//   if (user) {
+//       try{
+//           let spots;
+//           let environment;
+//           if(environment==="local-testing"){ 
+//               spots = await Spots.findAll({
+//                   where : {ownerId : user.id},
+//                   attributes: {
+//                       include: [
+//                           [literal(`(
+//                               SELECT AVG(stars) 
+//                               FROM "reviews" 
+//                               WHERE "reviews"."spotId" = Spots.id
+//                               )`), 'avgRating'], 
+//                           [literal(`(
+//                               SELECT url 
+//                               FROM "SpotImages" 
+//                               WHERE "SpotImages"."spotId" = Spots.id 
+//                                   AND "SpotImages".preview = true 
+//                               LIMIT 1
+//                               )`), 'previewImage']  
+//                       ]
+//                   },
+//                   raw: true
+//               });
+//           } else { // production environment
+//               spots = await Spots.findAll({
+//                   where : {ownerId : user.id},
+//                   attributes: {
+//                       include: [
+//                           [literal(`(
+//                               SELECT AVG(stars) 
+//                               FROM "home_stay_vacation"."reviews" 
+//                               WHERE "reviews"."spotId" = "Spots".id
+//                               )`), 'avgRating'],  
+//                           [literal(`(
+//                               SELECT url 
+//                               FROM "home_stay_vacation"."SpotImages" 
+//                               WHERE "SpotImages"."spotId" = "Spots".id 
+//                                   AND "SpotImages".preview = true 
+//                               LIMIT 1
+//                               )`), 'previewImage']  
+//                       ]
+//                   },
+//                   raw: true
+//               });
+//           }
 
-          return res.status(200).json({Spots:spots})
-      } catch (error) {
-          console.error('Error details:', error.message);  
-          console.error('Stack trace:', error.stack);  
-          res.status(500).json({ error: 'An error occurred while fetching spots.' });
-      }
-  } else {
-      res.status(401)
-      return res.json({
-          "message": "Authentication required"
-        });
-  }
-})
+//           return res.status(200).json({Spots:spots})
+//       } catch (error) {
+//           console.error('Error details:', error.message);  
+//           console.error('Stack trace:', error.stack);  
+//           res.status(500).json({ error: 'An error occurred while fetching spots.' });
+//       }
+//   } else {
+//       res.status(401)
+//       return res.json({
+//           "message": "Authentication required"
+//         });
+//   }
+// })
 
 
+router.get('/current', requireAuth, async (req, res) => {
+    const { user } = req;
 
+    if (!user) {
+        return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+        const environment = process.env.NODE_ENV; // Assuming environment variable for environment
+        const baseQuery = {
+            where: { ownerId: user.id },
+            attributes: {
+                include: [
+                    [
+                        literal(`(
+                            SELECT AVG(stars) 
+                            FROM ${environment === "local-testing" ? "" : "home_stay_vacation."}reviews 
+                            WHERE reviews.spotId = Spots.id
+                        )`), 
+                        'avgRating'
+                    ],
+                    [
+                        literal(`(
+                            SELECT url 
+                            FROM ${environment === "local-testing" ? "" : "home_stay_vacation."}SpotImages 
+                            WHERE SpotImages.spotId = Spots.id 
+                            AND SpotImages.preview = true 
+                            LIMIT 1
+                        )`), 
+                        'previewImage'
+                    ]
+                ]
+            },
+            raw: true
+        };
+
+        const spots = await Spots.findAll(baseQuery);
+
+        return res.status(200).json({ Spots: spots });
+    } catch (error) {
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
+        return res.status(500).json({ error: 'An error occurred while fetching spots.' });
+    }
+});
+
+module.exports = router;
 
 
 
