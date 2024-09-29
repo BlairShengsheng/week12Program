@@ -8,4 +8,5 @@ If you're testing locally, ensure your server is running.
 
 */
 
-export const apiBaseUrl = 'http://localhost:8000/api';
+// export const apiBaseUrl = 'http://localhost:8000/api';
+export const apiBaseUrl = 'https://week12program-home-vacation-spot.onrender.com/api';
