@@ -15,7 +15,7 @@ module.exports = {
   
   async up (queryInterface, Sequelize) {
 
-   await queryInterface.bulkCreate('reviews',[
+   await reviews.bulkCreate([
     {
       userId: 5,
       spotId: 1,

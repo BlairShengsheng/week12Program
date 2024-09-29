@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up (queryInterface, Sequelize) {
 
-    await queryInterface.bulkCreate("reviewImages",[
+    await reviewImages.bulkCreate([
       {
         reviewId:1,
         url: "image-for-review-1"

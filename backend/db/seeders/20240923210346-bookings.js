@@ -20,7 +20,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkCreate('bookings',[
+   await bookings.bulkCreate([
     {
       spotId: 1,
       userId: 2,

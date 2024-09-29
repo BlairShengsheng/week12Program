@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.bulkCreate('SpotImages', [
+    await SpotImages.bulkCreate([
       {
         spotId: 1,
         url: "/images/01.png",
