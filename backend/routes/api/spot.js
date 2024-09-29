@@ -201,6 +201,7 @@ router.get('/current', requireAuth, async(req,res) => {
   if (user) {
       try{
           let spots;
+          let environment;
           if(environment==="local-testing"){ 
               spots = await Spots.findAll({
                   where : {ownerId : user.id},
