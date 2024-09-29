@@ -284,66 +284,70 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// //POST/spots/:spotId/images -- add an image to a spot
-// router.post('/:spotId/images',requireAuth,  async(req, res) => {
-//   const { spotId } = req.params;
-//   const {url, preview} = req.body;
-//   const { user } = req;// Assuming `requireAuth` middleware attaches the current user to `req.user`
-//   try {
-//     //check if the spot exists
-//     const spot = await Spots.findByPk(spotId);
-//     if(!spot){
-//       return res.status(404).json({message: "Spot couldn't be found"})
-//     }
+//POST/spots/:spotId/images -- add an image to a spot
+router.post('/:spotId/images',requireAuth,  async(req, res) => {
+  const { spotId } = req.params;
+  const {url, preview} = req.body;
+  const { user } = req;// Assuming `requireAuth` middleware attaches the current user to `req.user`
+  try {
+    //check if the spot exists
+    const spot = await Spots.findByPk(spotId);
+    if(!spot){
+      return res.status(404).json({message: "Spot couldn't be found"})
+    }
 
-//     //check if the current user is the owner of the spot
-//     if(spot.ownerId !== user.id){
-//       return res.status(403).json({message:"Forbidden: You are not the owner of this spot" });
-//     }
+    //check if the current user is the owner of the spot
+    if(spot.ownerId !== user.id){
+      return res.status(403).json({message:"Forbidden: You are not the owner of this spot" });
+    }
 
-//     //create the new SpotImage
-//     const newImage = await SpotImages.create({
-//       spotId, 
-//       url,
-//       preview
-//     })
-//     return res.status(201).json(newImage);
-
-//   }catch(error){
-//     console.error(error);
-//     res.status(500).json({message:"An error occurred while adding an image to the spot."})
-//   }
-// });
-
-router.post('/:spotId/images', requireAuth, async (req, res) => {
-  const userId = req.user.id
-  const spot = await Spots.findOne({
-      where:{
-          id: req.params.spotId
-      }
-  })
-  // check existence
-  if(!spot){
-      return res.status(404).json( {"message": "Spot couldn't be found"} )
-  };
-  const spotOwnerId = spot.ownerId
-  if(userId !== spotOwnerId){
-      return res.status(403).json({ "message": "Forbidden" })
-  }
-  //
-  
-  const newSpotImage = await SpotImages.create({
-      spotId:req.params.spotId,
-      ...req.body
-  })
-
-  const {id , url, preview} = newSpotImage
-  res.status(201).json({
-      id,
+    //create the new SpotImage
+    const newImage = await SpotImages.create({
+      spotId, 
       url,
       preview
-  })
-})
+    })
+    return res.status(201).json({
+      spotId: newImage.spotId,
+      url: newImage.url,
+      preview: newImage.preview
+    });
+
+  }catch(error){
+    console.error(error);
+    res.status(500).json({message:"An error occurred while adding an image to the spot."})
+  }
+});
+
+// router.post('/:spotId/images', requireAuth, async (req, res) => {
+//   const userId = req.user.id
+//   const spot = await Spots.findOne({
+//       where:{
+//           id: req.params.spotId
+//       }
+//   })
+//   // check existence
+//   if(!spot){
+//       return res.status(404).json( {"message": "Spot couldn't be found"} )
+//   };
+//   const spotOwnerId = spot.ownerId
+//   if(userId !== spotOwnerId){
+//       return res.status(403).json({ "message": "Forbidden" })
+//   }
+//   //
+  
+//   const newSpotImage = await SpotImages.create({
+//       spotId:req.params.spotId,
+//       ...req.body
+//   })
+
+//   const {id , url, preview} = newSpotImage
+//   res.status(201).json({
+//       id,
+//       url,
+//       preview
+//   })
+// })
 
 
 
