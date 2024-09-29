@@ -175,23 +175,103 @@ router.get('/',async(req, res) => {
 
 
 //GET/spots/current - Fetch all spots owned by current user // we can change seeder file retest it
-router.get('/current',requireAuth, async (req,res) =>{
+// router.get('/current',requireAuth, async (req,res) =>{
 
-  const userId = req.user.id
-  const spots = await Spots.findAll({
-      where:{ownerId:userId},
-      ...addAvgRatingAndPreviewImage
-  })
+//   const userId = req.user.id
+//   const spots = await Spots.findAll({
+//       where:{ownerId:userId},
+//       ...addAvgRatingAndPreviewImage
+//   })
 
-  const changed = spots.map(spot => ({
-    ...spot.toJSON(),
-    price: Number(spot.price)
-}));
+//   const changed = spots.map(spot => ({
+//     ...spot.toJSON(),
+//     price: Number(spot.price)
+// }));
 
-  return res.json({
-      Spots:changed
-  })
+//   return res.json({
+//       Spots:changed
+//   })
+// })
+
+
+
+
+router.get('/current', requireAuth, async(req,res) => {
+  const { user } = req;
+  if (user) {
+      try{
+          let spots;
+          if(environment==="local-testing"){ 
+              spots = await Spots.findAll({
+                  where : {ownerId : user.id},
+                  attributes: {
+                      include: [
+                          [literal(`(
+                              SELECT AVG(stars) 
+                              FROM "reviews" 
+                              WHERE "reviews"."spotId" = Spots.id
+                              )`), 'avgRating'], 
+                          [literal(`(
+                              SELECT url 
+                              FROM "SpotImages" 
+                              WHERE "SpotImages"."spotId" = Spots.id 
+                                  AND "SpotImages".preview = true 
+                              LIMIT 1
+                              )`), 'previewImage']  
+                      ]
+                  },
+                  raw: true
+              });
+          } else { // production environment
+              spots = await Spots.findAll({
+                  where : {ownerId : user.id},
+                  attributes: {
+                      include: [
+                          [literal(`(
+                              SELECT AVG(stars) 
+                              FROM "blair_db"."reviews" 
+                              WHERE "reviews"."spotId" = "Spots".id
+                              )`), 'avgRating'],  
+                          [literal(`(
+                              SELECT url 
+                              FROM "blair_db"."SpotImages" 
+                              WHERE "SpotImages"."spotId" = "Spots".id 
+                                  AND "SpotImages".preview = true 
+                              LIMIT 1
+                              )`), 'previewImage']  
+                      ]
+                  },
+                  raw: true
+              });
+          }
+
+          return res.status(200).json({Spots:spots})
+      } catch (error) {
+          console.error('Error details:', error.message);  
+          console.error('Stack trace:', error.stack);  
+          res.status(500).json({ error: 'An error occurred while fetching spots.' });
+      }
+  } else {
+      res.status(401)
+      return res.json({
+          "message": "Authentication required"
+        });
+  }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
