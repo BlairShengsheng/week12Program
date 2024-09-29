@@ -1,6 +1,6 @@
 'use strict';
 
-const { Users } = require('../models');
+const { User } = require('../models');
 const bcrypt = require("bcryptjs");
 
 let options = {};
@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await Users.bulkCreate([
+    await User.bulkCreate([
       {
         email: 'demo@user.io',
         username: 'Demo-lition',

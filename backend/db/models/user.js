@@ -3,13 +3,13 @@
 const { Model, Validator } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class Users extends Model {
+  class User extends Model {
     static associate(models) {
       // define association here
     }
   }
 
-  Users.init(
+  User.init(
     {
       username: {
         type: DataTypes.STRING,
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Users',
+      modelName: 'User',
       defaultScope: {
         attributes: {
           exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
@@ -59,5 +59,5 @@ module.exports = (sequelize, DataTypes) => {
       },
     }
   );
-  return Users;
+  return User;
 };

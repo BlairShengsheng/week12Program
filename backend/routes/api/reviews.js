@@ -3,7 +3,7 @@ const express = require('express');
 const { requireAuth } = require('../../utils/auth');
 const{ Op } = require('sequelize');
 const router = express.Router();
-const { Spots,bookings, reviewImages,reviews,Users,sequelize } = require('../../db/models');
+const { Spots,bookings, reviewImages,reviews,User,sequelize } = require('../../db/models');
 
 const { handleValidationErrors } = require('../../utils/validation');
 const dialect = sequelize.getDialect()
@@ -48,7 +48,7 @@ router.get('/current', requireAuth, async (req, res) => {
           userId: req.user.id
       },
       include: [
-          { model: Users, attributes: ['id', 'firstName', 'lastName']
+          { model: User, attributes: ['id', 'firstName', 'lastName']
           },
           {   model: Spots,
               attributes: {
