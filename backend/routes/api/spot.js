@@ -207,7 +207,7 @@ router.post('/:spotId/images',requireAuth,  async(req, res) => {
       url,
       preview
     })
-    return res.status(201).json({newImage});
+    return res.status(201).json(newImage);
 
   }catch(error){
     console.error(error);
