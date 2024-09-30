@@ -39,34 +39,34 @@ const addAvgRatingAndPreviewImage = {
 
 
 //GET/spots/current - Fetch all spots owned by current user // 
-router.get('/current',requireAuth, async (req,res) =>{
+// router.get('/current',requireAuth, async (req,res) =>{
 
-  const userId = req.user.id
-  const spots = await Spots.findAll({
-      where:{ownerId:userId},
-      ...addAvgRatingAndPreviewImage
-  })
-
-  const changed = spots.map(spot => ({
-    ...spot.toJSON(),
-    price: Number(spot.price)
-}));
-
-  return res.json({
-      Spots:changed
-  })
-})
-
-
-// router.get('/current', requireAuth, async (req,res) =>{
 //   const userId = req.user.id
-//   const Spots = await Spots.findAll({
+//   const spots = await Spots.findAll({
 //       where:{ownerId:userId},
+//       ...addAvgRatingAndPreviewImage
 //   })
-//   res.json({
-//       Spots
+
+//   const changed = spots.map(spot => ({
+//     ...spot.toJSON(),
+//     price: Number(spot.price)
+// }));
+
+//   return res.json({
+//       Spots:changed
 //   })
 // })
+
+
+router.get('/current', requireAuth, async (req,res) =>{
+  const userId = req.user.id
+  const Spots = await Spots.findAll({
+      where:{ownerId:userId},
+  })
+  res.json({
+      Spots
+  })
+})
 
 
 
