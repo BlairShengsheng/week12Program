@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "cookie-parser": "^1.4.6"
+    "cookie-parser": "^1.4.6",
+    "react-router-dom": "^6.27.0"
   }
 }
