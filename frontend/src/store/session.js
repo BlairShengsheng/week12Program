@@ -39,10 +39,17 @@ export const login = (credential, password) => async (dispatch) => {
     dispatch(setUser(data.user))
     return response;
   }
-
 }
 
 // test it out with this -> window.store.dispatch(window.sessionActions.login('demo@user.io', 'password')); in your browser console to see if it works
+
+export const restoreUser = () => async (dispatch) => {
+  const response = await csrfFetch("/api/session");// call the API to get session user
+  const data = await response.json();// Parse the JSON response
+  dispatch(setUser(data.user)); // Dispatch the setUser action with the user data
+  return response; // return response fro potential chaining
+
+}
 
 
 //! --------------------------------------------------------------------
