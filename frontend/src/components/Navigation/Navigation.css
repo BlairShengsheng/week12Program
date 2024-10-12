@@ -1,0 +1,10 @@
+
+.profile-dropdown.hidden {
+  display: none;
+}
+.profile-dropdown {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+}

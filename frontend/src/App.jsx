@@ -1,28 +1,26 @@
 // frontend/src/App.jsx
-import { useState, useEffect } from 'react'; //<-- ADD THIS LINE
-import { useDispatch } from 'react-redux';//<-- ADD THIS LINE
 
+import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import LoginFormPage from './components/LoginFormPage';
-import SignupFormPage from './components/SignupFormPage';
-
-
-
-import * as sessionActions from './store/session'//<-- ADD THIS LINE
+import LoginFormPage from './components/LoginFormPage/LoginFormPage';
+import SignupFormPage from './components/SignupFormPage/SignupFormPage';
+import Navigation from './components/Navigation/Navigation';
+import * as sessionActions from './store/session';
 
 function Layout() {
   const dispatch = useDispatch();
-  const [isLoaded, setIsLoaded] = useState(false);// track if the user is loaded
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     dispatch(sessionActions.restoreUser()).then(() => {
-      setIsLoaded(true) // Set isLoaded to true after session restoration
+      setIsLoaded(true)
     });
   }, [dispatch]);
 
-  // Render routes only after session is restored 
   return (
     <>
+     <Navigation isLoaded={isLoaded} />
       {isLoaded && <Outlet />}
     </>
   );
@@ -34,11 +32,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <h1>Welcome!</h1> // Simple welcome page for now
-      },
-      {
-        path: '/login',
-        element: <LoginFormPage />  // Login page route
+        element: <h1>Welcome!</h1>
       },
       {
         path: '/login',
@@ -48,20 +42,12 @@ const router = createBrowserRouter([
         path: "/signup",
         element: <SignupFormPage />
       }
-
     ]
-  },
-  // {
-  //   path: '/login',
-  //   element: <LoginFormPage />  // Login page route
-  // }
-
-])
-
+  }
+]);
 
 function App() {
-  // return <h1> Hello from App </h1>;
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
 
 export default App;
