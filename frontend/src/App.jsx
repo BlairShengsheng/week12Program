@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import Navigation from './components/Navigation/Navigation';
 import * as sessionActions from './store/session';
+import Navigation from './components/Navigation/Navigation';
+import { Spots } from './components/Spots/Spots'// import Spots component
+import { SpotsDetails } from './components/Spots/SpotsDetails';//import SportsDetails component
 
+
+
+
+//! --------------------------------------------------------------------
+//*                          Layout Component
+//! --------------------------------------------------------------------
 function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
@@ -22,17 +30,40 @@ function Layout() {
   );
 }
 
+
+//! --------------------------------------------------------------------
+//*                          Routers
+//! --------------------------------------------------------------------
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       {
         path: '/',
-        element: <h1>Welcome!</h1>
+        element: (
+          <>
+            <h1>Welcome!</h1>
+            <Spots />
+          </>
+        )
+      },
+      {
+        path: '/spots',
+        element: <Spots />
+      },
+      {
+        path: '/spot/:spotId',
+        element: <SpotsDetails />
       }
     ]
   }
 ]);
+
+
+
+//! --------------------------------------------------------------------
+//*                          App Component
+//! --------------------------------------------------------------------
 
 function App() {
   return <RouterProvider router={router} />;

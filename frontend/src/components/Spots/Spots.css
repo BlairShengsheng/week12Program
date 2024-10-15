@@ -1,0 +1,27 @@
+.spots-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns */
+  gap: 10px; /* Space between the blocks */
+  margin: 20px;
+  background-color:rgb(249, 221, 186);/* change it later */
+}
+
+.single-spot-container {
+  width: 100%;
+  height: 200px; /* Adjust height if needed */
+}
+
+.spot-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-block {
+  color: #888;
+  font-size: 16px;
+}

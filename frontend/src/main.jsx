@@ -11,7 +11,7 @@ import { Modal, ModalProvider } from './context/Modal';
 
 
 //Create a variable to access your store and expose it on the window
-const store = configureStore();
+const store = configureStore();// redux store
 if (import.meta.env.MODE !== 'production') {
   restoreCSRF();
 
@@ -20,9 +20,6 @@ if (import.meta.env.MODE !== 'production') {
   window.sessionActions = sessionActions; // <-- ADD THIS LINE
 }
 
-// if (process.env.NODE_ENV !== 'production') {
-//   window.store = store;
-// }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
