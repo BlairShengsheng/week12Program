@@ -30,7 +30,7 @@ export const setAllSpotsThunks = () => async(dispatch) => {
   if(response.ok){
     const data = await response.json();
     dispatch(setAllSpots(data.Spots))
-  };
+  }
   return response;
 }
 
@@ -57,7 +57,7 @@ const spotsReducer = (state = initialState, action) => {
     
     default: 
       return state;
-  };
+  }
 
 };
 

@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAllSpotsThunks } from '../../store/spots';
 import { Link } from 'react-router-dom';
@@ -25,7 +25,7 @@ export function Spots() {
       <>
         <div className="spots-container">
           {spots.map((spot, i) => (// spots from useSelector
-            <Link to={`/spot/${spot.id}`}>
+            <Link to={`/spot/${spot.id}`} key={i}>
               <div key={i} className="single-spot-container">
                 <div className="spot-placeholder">
                   <div className="empty-block">{spot.address}</div>
