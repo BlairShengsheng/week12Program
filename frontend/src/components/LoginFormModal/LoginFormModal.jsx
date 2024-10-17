@@ -14,9 +14,11 @@ function LoginFormModal() {
   const { closeModal } = useModal();
 
   const handleSubmit = (e) => {
+    debugger
+
     e.preventDefault();
     setErrors({});
-    return dispatch(sessionActions.login({ credential, password }))
+    return dispatch(sessionActions.login(credential, password))
       .then(closeModal)
       .catch(async (res) => {
         const data = await res.json();

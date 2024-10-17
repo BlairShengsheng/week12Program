@@ -5,11 +5,15 @@ import { thunk } from 'redux-thunk';
 import sessionReducer from './session';
 import spotsReducer from './spots';
 
+
 // Create a rootReducer that calls combineReducers
 const rootReducer = combineReducers({
   session: sessionReducer,
   allSpots: spotsReducer
+ 
+  
 
+  
 });
 // Initialize an enhancer variable 
 let enhancer;

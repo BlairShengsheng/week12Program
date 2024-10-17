@@ -6,10 +6,23 @@ import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
 
+import { useNavigate } from 'react-router-dom';//----Add this line
+
+
+
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
+
+
+  const navigate = useNavigate();
+
+  const redirectingNew = () => {  //----Add this line 
+    navigate('/spots/new')
+  };
+
+
 
   const toggleMenu = (e) => {
     e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
@@ -42,6 +55,12 @@ function ProfileButton({ user }) {
 
   return (
     <>
+      {user && (
+        <p className='createNewSpotText' onClick={redirectingNew}>
+          Create a new spot
+        </p>
+      )}
+      
       <button onClick={toggleMenu}>
         <FaUserCircle />
       </button>

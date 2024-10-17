@@ -2,16 +2,31 @@
 import { useSelector } from 'react-redux';
 import './SpotsDetails.css';
 import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { setAllSpotsThunks } from '../../store/spots';
+
 
 //! --------------------------------------------------------------------
 //*                          SpotsDetails Component
 //! --------------------------------------------------------------------
 
 export function SpotsDetails() {
+  const dispatch = useDispatch();
   const { spotId } = useParams();
+
   const spots = useSelector((state) => state.allSpots.spots);
 
   const spot = spots.find((spot) => spot.id === Number(spotId));
+
+
+
+  useEffect(() => {
+    dispatch(setAllSpotsThunks());
+  }, [dispatch]);
+  
+
+
 
   if (!spot) {
     return <h1>Spot Not Found</h1>;

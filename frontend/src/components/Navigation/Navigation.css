@@ -8,3 +8,41 @@
   border: 1px solid #ccc;
   padding: 10px;
 }
+.airbnb-home-text {
+  font-size: 35px;
+  color: red;
+  cursor: pointer;
+}
+.Nav-container {
+  display: flex;
+  background-color: rgb(225, 207, 152);
+  justify-content: space-between;
+  align-items: center;
+}
+
+ul {
+  list-style-type: none;
+  display: flex;
+  gap:20px;
+  /* background-color: aqua; */
+}
+li{
+  display: inline;
+  
+  /* background-color: antiquewhite; */
+}
+
+
+/* ----------------Home -----------------*/
+a {
+  text-decoration: none;
+  color: black;
+  display:flex;
+  align-items: center;
+  /* background-color: rgb(173, 173, 240); */
+  position: relative;
+  bottom: -10px;
+}
+a:hover {
+  color: red;
+}

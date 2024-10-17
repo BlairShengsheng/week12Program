@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import * as sessionActions from './store/session';
+import'./App.css';
 import Navigation from './components/Navigation/Navigation';
 import { Spots } from './components/Spots/Spots'// import Spots component
 import { SpotsDetails } from './components/Spots/SpotsDetails';//import SportsDetails component
-
+import{ CreateASpot } from './components/Spots/CreateASpot';//import CreateASpot component
 
 
 
@@ -52,8 +53,12 @@ const router = createBrowserRouter([
         element: <Spots />
       },
       {
-        path: '/spot/:spotId',
+        path: '/spots/:spotId',
         element: <SpotsDetails />
+      },
+      {
+        path: '/spots/new',
+        element:<CreateASpot />
       }
     ]
   }

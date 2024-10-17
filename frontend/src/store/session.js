@@ -27,6 +27,7 @@ export const removeUser = () => ({
 //! --------------------------------------------------------------------
 export const login = (credential, password) => async (dispatch) => {
   //make teh POST request to log in the user
+  debugger
   const response = await csrfFetch('/api/session', {
     method: 'POST',
     body: JSON.stringify({ credential, password }),
