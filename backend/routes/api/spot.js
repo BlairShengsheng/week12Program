@@ -60,11 +60,11 @@ const addAvgRatingAndPreviewImage = {
 
 router.get('/current', requireAuth, async (req,res) =>{
   const userId = req.user.id
-  const Spots = await Spots.findAll({
+  const Spotss = await Spots.findAll({
       where:{ownerId:userId},
   })
   res.json({
-      Spots
+      Spotss
   })
 })
 

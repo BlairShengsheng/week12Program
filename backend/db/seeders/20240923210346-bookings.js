@@ -46,12 +46,6 @@ module.exports = {
       endDate: "2021-06-26"
     },
     {
-      spotId: 6,
-      userId: 3,
-      startDate: "2020-05-12",
-      endDate: "2022-05-26"
-    },
-    {
       spotId: 5,
       userId: 4,
       startDate: "2020-04-12",
@@ -63,31 +57,13 @@ module.exports = {
       startDate: "2020-08-01",
       endDate: "2022-09-16"
     },
-    {
-      spotId: 7,
-      userId: 19,
-      startDate: "2020-07-12",
-      endDate: "2023-08-06"
-    },
-    {
-      spotId: 8,
-      userId: 13,
-      startDate: "2020-02-12",
-      endDate: "2022-03-26"
-    },
-    {
-      spotId: 9,
-      userId: 11,
-      startDate: "2020-08-12",
-      endDate: "2022-04-26"
-    },
   ],{validate: true});
   },
   async down (queryInterface, Sequelize) {
     options.tableName = 'bookings';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      spotId: { [Op.in]: [1,2,3,4,5,6,7,8,9] }
+      spotId: { [Op.in]: [1,2,3,4,5] }
     }, {});
   }
 };
