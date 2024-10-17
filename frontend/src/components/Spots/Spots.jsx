@@ -21,7 +21,7 @@ export function Spots() {
  
   
   // allSpots is reducer from rootreducer, spots is a key in initialstate (find it in the reducer)
-  const spots = useSelector((state) => state.allSpots.spots);
+  const spots = useSelector((state) => state.allSpots.allSpots);//-------change over here
 
    // Sort spots by newest first
   //  const sortedSpots = [...spots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -35,7 +35,7 @@ export function Spots() {
       <>
         <div className="spots-container">
 
-          {spots.map((spot, i) => (// spots from useSelector
+          {Object.values(spots).map((spot, i) => (// spots from useSelector
 
             <Link to={`/spots/${spot.id}`} key={i}>
 

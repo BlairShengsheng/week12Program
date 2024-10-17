@@ -7,6 +7,7 @@ import Navigation from './components/Navigation/Navigation';
 import { Spots } from './components/Spots/Spots'// import Spots component
 import { SpotsDetails } from './components/Spots/SpotsDetails';//import SportsDetails component
 import{ CreateASpot } from './components/Spots/CreateASpot';//import CreateASpot component
+import { ManageSpot } from './components/Spots/ManageSpot';//import ManageSpot component
 
 
 
@@ -59,7 +60,12 @@ const router = createBrowserRouter([
       {
         path: '/spots/new',
         element:<CreateASpot />
+      },
+      {
+        path: 'spots/current',
+        element:<ManageSpot />
       }
+
     ]
   }
 ]);

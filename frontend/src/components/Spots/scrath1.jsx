@@ -33,28 +33,9 @@ export function CreateASpot() {
   //                          Handle Form Submit
   //! --------------------------------------------------------------------
 
+
+
   useEffect(() => {
-    return () =>{
-      // Reset the form
-      setCountry("");
-      setAddress("");
-      setCity("");
-      setState("");
-      setPrice("");
-      setLat(""); // Reset lat
-      setLng(""); // Reset lng
-      setTitle("");
-      setDescription("");
-      setImagesURL(["", "", "", ""]);
-      setPreImageURL("");
-      setHasSubmitted(false); // Reset form state
-    }
-  },[]);
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
     const validationErrors = {};
 
     // Validate all fields
@@ -76,38 +57,68 @@ export function CreateASpot() {
       if (!url.match(/\.(png|jpg|jpeg)$/i)) {
        validationErrors[`image${index}`] = `Image URL ${index + 1} must end in .png, .jpg, or .jpeg`;
       }
-    })
+    });
+
+    setErrors(validationErrors); // Update errors state
+  }, [country, address, city, state, description, title, price, lat, lng,imagesURL, preImageURL]);
+
+
+
+
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
   
     setHasSubmitted(true);
+  
+    // Check the validationErrors object is empty or not
+    if (Object.keys(errors).length === 0) {
+      console.log("Form is ready to be submitted");
 
-    if(Object.keys(validationErrors).length > 0){
-      setErrors(validationErrors); // Update errors state
-      return;
-    }
+     
+  
 
-    let name = title
-    const spotData = {
-      country,
-      address,
-      city,
-      state,
-      imagesURL,
-      preImageURL,
-      description,
-      price,
-      name,
-      lat,
-      lng,
-
-    }
-    const newSpot = await dispatch(createASpotThunk(spotData));
+      let name = title
+      // let lat = 1
+      // let lng = 1
+      const newSpot = await dispatch(createASpotThunk({
+        country,
+        address,
+        city,
+        state,
+        imagesURL,
+        preImageURL,
+        description,
+        price,
+        name,
+        lat,
+        lng,
+      }));
       if(newSpot && newSpot.id) {
         // await dispatch(setAllSpotsThunks());
         navigate(`/spots/${newSpot.id}`)
         await dispatch(setAllSpotsThunks());
       }
   
-    
+      // Reset the form
+      setCountry("");
+      setAddress("");
+      setCity("");
+      setState("");
+      setPrice("");
+      setLat("");  // Reset lat
+      setLng("");  // Reset lng
+      setTitle("");
+      setDescription("");
+      setImagesURL(["","","",""]);
+      setPreImageURL("");
+      setHasSubmitted(false); // Reset form state
+  
+
+
+
+    }
   };
   
 
@@ -195,6 +206,16 @@ export function CreateASpot() {
             {hasSubmitted && errors.state && <p className="error-message">{errors.lng}</p>}
           </div>
         </div>
+
+
+
+
+
+
+
+
+
+
 
 
 

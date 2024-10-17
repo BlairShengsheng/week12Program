@@ -16,11 +16,14 @@ function ProfileButton({ user }) {
   const ulRef = useRef();
 
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); //----Add this line 
 
   const redirectingNew = () => {  //----Add this line 
     navigate('/spots/new')
   };
+  const redirectingCurrent = () => { //----Add this line 
+    navigate('/spots/current')
+  }
 
 
 
@@ -56,8 +59,8 @@ function ProfileButton({ user }) {
   return (
     <>
       {user && (
-        <p className='createNewSpotText' onClick={redirectingNew}>
-          Create a new spot
+        <p className='show you alredy here' onClick={redirectingNew}>
+          wowLa! You are here!
         </p>
       )}
       
@@ -71,6 +74,11 @@ function ProfileButton({ user }) {
             <li>{user.firstName} {user.lastName}</li>
             <li>{user.email}</li>
             <li>
+             
+             <button className='manageSpot' onClick={redirectingCurrent}>
+              Manage Spot
+             </button>
+      
               <button onClick={logout}>Log Out</button>
             </li>
           </>

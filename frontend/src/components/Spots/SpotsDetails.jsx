@@ -15,9 +15,9 @@ export function SpotsDetails() {
   const dispatch = useDispatch();
   const { spotId } = useParams();
 
-  const spots = useSelector((state) => state.allSpots.spots);
+  const spots = useSelector((state) => state.allSpots.allSpots);//------change over here
 
-  const spot = spots.find((spot) => spot.id === Number(spotId));
+  const spot = Object.values(spots).find((spot) => spot.id === Number(spotId));
 
 
 

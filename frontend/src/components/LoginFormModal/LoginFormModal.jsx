@@ -14,7 +14,7 @@ function LoginFormModal() {
   const { closeModal } = useModal();
 
   const handleSubmit = (e) => {
-    debugger
+    
 
     e.preventDefault();
     setErrors({});

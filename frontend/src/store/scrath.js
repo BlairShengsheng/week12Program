@@ -79,7 +79,7 @@ export const createASpotThunk = (spotData) => async (dispatch) => {
   if (response.ok) {
     const newSpot = await response.json();
     dispatch(createSpot(newSpot));
-    dispatch(setAllSpotsThunks()); // re-fetch all spots, maintaining consistency with the backend
+    dispatch(setAllSpotsThunks()); // Optionally re-fetch all spots
     return newSpot;
   } else {
     const errors = await response.json();
@@ -98,7 +98,6 @@ export const updateASpotThunk = (spotData) => async (dispatch) => {
     if (response.ok) {
       const updatedSpot = await response.json();
       dispatch(editSpot(updatedSpot));
-      dispatch(setAllSpotsThunks()); // Re-fetch all spots after updating, maintaining consistency with the backend(also updating the backend)
       return updatedSpot;
     }
   } catch (err) {
@@ -113,8 +112,7 @@ export const deleteASpotThunk = (spotDataId) => async (dispatch) => {
       method: 'DELETE',
     });
     if (response.ok) {
-      dispatch(deleteSpot( spotDataId ));
-      dispatch(setAllSpotsThunks()); // Re-fetch after deleting
+      dispatch(deleteSpot({ id: spotDataId }));
     }
   } catch (err) {
     console.error("Error deleting a spot:", err);
@@ -125,47 +123,37 @@ export const deleteASpotThunk = (spotDataId) => async (dispatch) => {
 //*                          Reducer
 //! --------------------------------------------------------------------
 const initialState = {
-  allSpots: {},
-  singleSpot: {}
+  spots: [],
 };
 
 const spotsReducer = (state = initialState, action) => {
   switch (action.type) {
-      case SET_ALL_SPOTS: {
-          const newState = { ...state, allSpots: { ...state.allSpots } };
-          action.payload.forEach((spot) => {        //payload
-              newState.allSpots[spot.id] = spot;
-          });
-          return newState;
-      }
-      case SET_SPOT: {
-        return {
-            ...state,
-            singleSpot: action.payload,
-        };
-  }
-  case CREATE_SPOT: {
-    const newState = { 
-      ...state, 
-      allSpots: { ...state.allSpots, [action.payload.id]: action.payload }, 
-      singleSpot: action.payload // Optionally update singleSpot to the new spot
-    };
-    return newState;
-  }
+    case SET_ALL_SPOTS:
+      return { ...state, spots: action.payload };
 
-case EDIT_SPOT: {
-  const newState = { ...state };
-  newState.allSpots[action.payload.id] = action.payload; // Update the spot in the state
-  return newState;
-}
-case DELETE_SPOT: {
-  const newState = { ...state };
-  delete newState.allSpots[action.payload]; // Remove the spot from the state
-  return newState;
-}
-  default:
+    case SET_SPOT:
+      return { ...state, spots: [action.payload] };
+
+    case CREATE_SPOT:
+      return { ...state, spots: [action.payload, ...state.spots] };
+
+    case EDIT_SPOT:
+      return {
+        ...state,
+        spots: state.spots.map((spot) =>
+          spot.id === action.payload.id ? action.payload : spot
+        ),
+      };
+
+    case DELETE_SPOT:
+      return {
+        ...state,
+        spots: state.spots.filter((spot) => spot.id !== action.payload.id),
+      };
+
+    default:
       return state;
-}
+  }
 };
 
 export default spotsReducer;
