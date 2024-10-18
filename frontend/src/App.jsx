@@ -8,6 +8,7 @@ import { Spots } from './components/Spots/Spots'// import Spots component
 import { SpotsDetails } from './components/Spots/SpotsDetails';//import SportsDetails component
 import{ CreateASpot } from './components/Spots/CreateASpot';//import CreateASpot component
 import { ManageSpot } from './components/Spots/ManageSpot';//import ManageSpot component
+import { EditSpot} from './components/Spots/EditSpot';// import EditSpot component
 
 
 
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
       {
         path: 'spots/current',
         element:<ManageSpot />
+      },
+      {
+        path: 'spots/:spotId/edit',
+        element:<EditSpot />
       }
 
     ]

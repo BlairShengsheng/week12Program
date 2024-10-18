@@ -1,87 +1,61 @@
-
-import { useSelector } from 'react-redux';
-import './SpotsDetails.css';
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { setAllSpotsThunks } from '../../store/spots';
-
-
-//! --------------------------------------------------------------------
-//*                          SpotsDetails Component
-//! --------------------------------------------------------------------
+import { Reviews } from '../Reviews/Reviews';// import Reviews component
+import './SpotsDetails.css';
 
 export function SpotsDetails() {
   const dispatch = useDispatch();
   const { spotId } = useParams();
-
-  const spots = useSelector((state) => state.allSpots.allSpots);//------change over here
-
+  const spots = useSelector((state) => state.allSpots.allSpots);
   const spot = Object.values(spots).find((spot) => spot.id === Number(spotId));
-
-
 
   useEffect(() => {
     dispatch(setAllSpotsThunks());
   }, [dispatch]);
-  
-
-
 
   if (!spot) {
     return <h1>Spot Not Found</h1>;
   }
 
   return (
-    <>
-      <div className="spots-detail-container">
-        {/* Image gallery */}
-        <div className="image-gallery">
-          <div className="large-image">
-            <img src={spot.mainImage} alt="Spot" />
-          </div>
-          <div className="small-images">
-            <img src={spot.secondaryImage1} alt="Spot" />
-            <img src={spot.secondaryImage2} alt="Spot" />
-            <img src={spot.secondaryImage3} alt="Spot" />
-            <img src={spot.secondaryImage4} alt="Spot" />
-          </div>
+    <div className="spots-detail-container">
+      <h1>{spot.name}</h1>
+      <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
+
+      <div className="image-gallery">
+        <div className="large-image">
+          <img src={spot.mainImage} alt="Main view of spot" />
         </div>
-
-        {/* Spot details */}
-        <div className="spot-info">
-          <h1>{spot.name}</h1>
-          <p>{spot.city}, {spot.state}</p>
-          <p>{spot.description}</p>
-
-          {/* Booking section */}
-          <div className="booking-section">
-            <div className="price">${spot.price} / night</div>
-            <button>Reserve</button>
-          </div>
-        </div>
-
-        {/* About section */}
-        <div className="about-section">
-          <h2>About the place</h2>
-          <p>{spot.about}</p>
-        </div>
-
-        {/* Reviews */}
-        <div className="review-section">
-          <h2>Reviews</h2>
-          {spot.reviews && spot.reviews.length ? (
-            spot.reviews.map((review, i) => (
-              <div key={i} className="review">
-                <div className="review-author">{review.author}</div>
-                <div className="review-text">{review.text}</div>
-              </div>
-            ))
-          ) : (
-            <p>No reviews available.</p>
-          )}
+        <div className="small-images">
+          <img src={spot.secondaryImage1} alt="Secondary view 1" />
+          <img src={spot.secondaryImage2} alt="Secondary view 2" />
+          <img src={spot.secondaryImage3} alt="Secondary view 3" />
+          <img src={spot.secondaryImage4} alt="Secondary view 4" />
         </div>
       </div>
-    </>
+
+      <div className="spot-info-container">
+        <div className="spot-description">
+          <h2>Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}</h2>
+          <p>{spot.description}</p>
+        </div>
+
+        <div className="reservation-box">
+          <div className="price-rating">
+            <span className="price">${spot.price} night</span>
+            <span className="rating">★ {spot.avgRating?.toFixed(1)} · {spot.numReviews} reviews</span>
+          </div>
+          <button className="reserve-button">Reserve</button>
+        </div>
+      </div>
+
+      <Reviews 
+        spotId={spot.id} 
+        avgRating={spot.avgRating} 
+        numReviews={spot.numReviews} 
+      />
+    </div>
   );
 }

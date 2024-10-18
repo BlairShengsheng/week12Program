@@ -263,12 +263,7 @@ export function CreateASpot() {
 
           {hasSubmitted && errors.preImageURL && <p className="error-message">{errors.preImageURL}</p>}
 
-          {/* <textarea
-            id="image-url-area"
-            placeholder="Image URL"
-            value={imagesURL}
-            onChange={(e) => setImagesURL(e.target.value)}
-          ></textarea> */}
+ 
           <textarea
             id="image-url-area"
             placeholder="Image URL1"

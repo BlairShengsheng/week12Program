@@ -1,17 +1,18 @@
-import './CreateASpot.css';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Use `useNavigate` from react-router-dom
-import { useDispatch} from 'react-redux';
-
-import { setAllSpotsThunks, createASpotThunk } from '../../store/spots';
+import './CreateASpot';
+import {useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAllSpotsThunks, updateASpotThunk, getAspotThunk  } from '../../store/spots';
 
 //! --------------------------------------------------------------------
-//*                          CreateSpots Component
+//*                          EditSpots Component
 //! --------------------------------------------------------------------
-export function CreateASpot() {
-  
-  const navigate = useNavigate(); // Initialize navigate
+export function EditSpot() {
+  const { spotId } = useParams();//------add this part
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const spot = useSelector(state => state.allSpots.singleSpot);//------add this part
+  // console.log('Single Spot Data:', spot);
 
   const [country, setCountry] = useState("");
   const [address, setAddress] = useState("");
@@ -25,17 +26,42 @@ export function CreateASpot() {
   const [lat, setLat] = useState(""); // Added latitude field
   const [lng, setLng] = useState(""); // Added longitude field
 
-  // Validation state
+  //validation state
   const [errors, setErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  //! --------------------------------------------------------------------
+  useEffect(() => {
+    dispatch(getAspotThunk(spotId))
+  },[dispatch, spotId])
+
+  useEffect(() => {
+    if (spot) {
+      setCountry(spot.country || "");
+      setAddress(spot.address || "");
+      setCity(spot.city || "");
+      setState(spot.state || "");
+      setDescription(spot.description || "");
+      setPrice(spot.price || "");
+      setTitle(spot.name || "");
+      setLat(spot.lat || "");
+      setLng(spot.lng || "");
+      setPreImageURL(spot.previewImage || "");
+      setImagesURL(spot.images || ["","","",""]);
+    }
+  }, [spot]);
+
+
+
+   //! --------------------------------------------------------------------
   //                          Handle Form Submit
   //! --------------------------------------------------------------------
 
 
 
-  useEffect(() => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setHasSubmitted(true);
+
     const validationErrors = {};
 
     // Validate all fields
@@ -57,69 +83,43 @@ export function CreateASpot() {
       if (!url.match(/\.(png|jpg|jpeg)$/i)) {
        validationErrors[`image${index}`] = `Image URL ${index + 1} must end in .png, .jpg, or .jpeg`;
       }
-    });
-
-    setErrors(validationErrors); // Update errors state
-  }, [country, address, city, state, description, title, price, lat, lng,imagesURL, preImageURL]);
-
-
-
-
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    })
   
-    setHasSubmitted(true);
-  
-    // Check the validationErrors object is empty or not
-    if (Object.keys(errors).length === 0) {
-      console.log("Form is ready to be submitted");
+    
 
-     
-  
+    if(Object.keys(validationErrors).length > 0){
+      setErrors(validationErrors); // Update errors state
+      return;
+    }
 
-      let name = title
-      // let lat = 1
-      // let lng = 1
-      const newSpot = await dispatch(createASpotThunk({
-        country,
-        address,
-        city,
-        state,
-        imagesURL,
-        preImageURL,
-        description,
-        price,
-        name,
-        lat,
-        lng,
-      }));
-      if(newSpot && newSpot.id) {
+    // let name = title
+    const spotData = {
+      id: spotId,
+      country,
+      address,
+      city,
+      state,
+      imagesURL,
+      preImageURL,
+      description,
+      price,
+      name: title,
+      lat,
+      lng,
+
+    }
+    const updatedSpot = await dispatch(updateASpotThunk (spotData));
+      if(updatedSpot && updatedSpot.id) {
         // await dispatch(setAllSpotsThunks());
-        navigate(`/spots/${newSpot.id}`)
+        navigate(`/spots/${updatedSpot.id}`)
         await dispatch(setAllSpotsThunks());
       }
   
-      // Reset the form
-      setCountry("");
-      setAddress("");
-      setCity("");
-      setState("");
-      setPrice("");
-      setLat("");  // Reset lat
-      setLng("");  // Reset lng
-      setTitle("");
-      setDescription("");
-      setImagesURL(["","","",""]);
-      setPreImageURL("");
-      setHasSubmitted(false); // Reset form state
-  
-
-
-
-    }
+    
   };
+  
+  
+  
   
 
   //! --------------------------------------------------------------------
@@ -127,7 +127,7 @@ export function CreateASpot() {
   //! --------------------------------------------------------------------
   return (
     <div className="form-container">
-      <h1>Create A New Spot</h1>
+      <h1>Update Your Spot</h1>
       <h2>Where&apos;s your place located?</h2>
       <h4>Guests will only get your exact address once they&apos;ve booked a reservation</h4>
 
@@ -211,16 +211,6 @@ export function CreateASpot() {
 
 
 
-
-
-
-
-
-
-
-
-
-
         <br />
 
         <div className="description-container">
@@ -284,12 +274,7 @@ export function CreateASpot() {
 
           {hasSubmitted && errors.preImageURL && <p className="error-message">{errors.preImageURL}</p>}
 
-          {/* <textarea
-            id="image-url-area"
-            placeholder="Image URL"
-            value={imagesURL}
-            onChange={(e) => setImagesURL(e.target.value)}
-          ></textarea> */}
+ 
           <textarea
             id="image-url-area"
             placeholder="Image URL1"
@@ -347,10 +332,11 @@ export function CreateASpot() {
         </div>
 
         <button id="create-spot-button" type="submit">
-          Create Spot
+          Update Spot
         </button>
       </form>
       <br />
     </div>
   );
+
 }

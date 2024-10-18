@@ -1,159 +1,163 @@
 import { csrfFetch } from "./csrf";
 
-//! --------------------------------------------------------------------
-//*                        Action Types
-//! --------------------------------------------------------------------
-const SET_ALL_SPOTS = 'spots/SET_ALL_SPOTS';
-const SET_SPOT = 'spots/SET_SPOT';
-const CREATE_SPOT = 'spots/CREATE_SPOT';
-const EDIT_SPOT = 'spots/EDIT_SPOT';
-const DELETE_SPOT = 'spots/DELETE_SPOT';
 
 
 //! --------------------------------------------------------------------
-//*                        Action Creators
+//*                        Regular Action type
 //! --------------------------------------------------------------------
 
-export const setAllSpots = (spots) => ({
-  type: SET_ALL_SPOTS,
-  payload: spots,
-});
+const SET_SPOT_REVIEWS = 'reviews/SET_SPOT_REVIEWS';
+const ADD_REVIEWS = 'reviews/ADD_REVIEWS';
+const EDIT_REVIEWS = 'reviews/EDIT_REVIEWS';
+const DELETE_REVIEWS = 'reviews/DELETE_REVIEWS';
 
-export const getSpot = (userSpot) => ({
-  type: SET_SPOT,
-  payload: userSpot,
-});
 
-export const createSpot = (newSpot) => ({
-  type: CREATE_SPOT,
-  payload: newSpot,
-});
 
-export const editSpot = (updatedSpot) => ({
-  type: EDIT_SPOT,
-  payload: updatedSpot,
-});
 
-export const deleteSpot = (deletedSpot) => ({
-  type: DELETE_SPOT,
-  payload: deletedSpot,
-});
+//! --------------------------------------------------------------------
+//*                        Regular Action Creator
+//! --------------------------------------------------------------------
+
+
+export const setSpotReviews = (reviews) => {
+  return {
+    type: SET_SPOT_REVIEWS, 
+    reviews
+  }
+}
+
+export const addReview = (review) => {
+  return {
+    type: ADD_REVIEWS,
+    review
+  }
+}
+
+export const editReview = (updatedReview) => {
+  return {
+    type: EDIT_REVIEWS,
+    updatedReview
+  }
+}
+
+export const deletedReview = (reviewId) => {
+  return {
+    type: DELETE_REVIEWS,
+    reviewId
+  }
+}
 
 //! --------------------------------------------------------------------
 //*                          Thunks
 //! --------------------------------------------------------------------
 
-// Fetch all spots
-export const setAllSpotsThunks = () => async (dispatch) => {
-  const response = await csrfFetch('/api/spots');
-  if (response.ok) {
-    const data = await response.json();
-    dispatch(setAllSpots(data.Spots));
-  }
-};
 
-// Get a single spot
-export const getAspotThunk = (spotDataId) => async (dispatch) => {
+
+
+//Fetch all reviews by spotId
+
+export const getSpotReviewsThunk = (spotId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/spots/${spotDataId}`);
+    const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
     if (response.ok) {
-      const userSpot = await response.json();
-      dispatch(getSpot(userSpot));
-      return userSpot;
+      const data = await response.json();
+      const normalizedReviews = data.Reviews.map(review => ({
+        ...review,
+        User: review.User || { firstName: 'Anonymous', lastName: '' }
+      }));
+      dispatch(setSpotReviews(normalizedReviews));
     }
-  } catch (err) {
-    console.error("Error fetching a spot:", err);
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
   }
 };
 
-// Create a new spot
-export const createASpotThunk = (spotData) => async (dispatch) => {
-  const response = await csrfFetch('/api/spots', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(spotData),
-  });
 
-  if (response.ok) {
-    const newSpot = await response.json();
-    dispatch(createSpot(newSpot));
-    dispatch(setAllSpotsThunks()); // Optionally re-fetch all spots
-    return newSpot;
+//Add a review by its spotId
+export const createReviewThunk = (spotId, reviewData) => async(dispatch) => {
+  const response = csrfFetch(`api/spots/${spotId}/reviews`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(reviewData),
+  });
+  if(response.ok){
+    const newReview = response.json();
+    dispatch(addReview(newReview));
+    dispatch(getSpotReviewsThunk(spotId))// re-fetch all spots, maintaining consistency with the backend
+
   } else {
     const errors = await response.json();
     return errors;
   }
-};
+}
 
-// Edit a spot
-export const updateASpotThunk = (spotData) => async (dispatch) => {
-  try {
-    const response = await csrfFetch(`/api/spots/${spotData.id}`, {
-      method: 'PUT', // Changed method to PUT for updates
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(spotData),
-    });
-    if (response.ok) {
-      const updatedSpot = await response.json();
-      dispatch(editSpot(updatedSpot));
-      return updatedSpot;
-    }
-  } catch (err) {
-    console.error("Error updating a spot:", err);
-  }
-};
+//Edit a review by its reviewId
+export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
+  const response = csrfFetch(`api/reviews/${reviewId}`, {
+    method:"PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(reviewData),
+  });
 
-// Delete a spot
-export const deleteASpotThunk = (spotDataId) => async (dispatch) => {
-  try {
-    const response = await csrfFetch(`/api/spots/${spotDataId}`, {
-      method: 'DELETE',
-    });
-    if (response.ok) {
-      dispatch(deleteSpot({ id: spotDataId }));
-    }
-  } catch (err) {
-    console.error("Error deleting a spot:", err);
+  if(response.ok) {
+    const updateReview = response.json();
+    dispatch(editReview(updateReview));
+    // dispatch(getSpotReviewsThunk(spotId));
+  } else {
+    const errors = await response.json();
+    return errors;
   }
-};
+}
+
+//Delete a review by its reviewId
+export const deleteReviewThunk = (reviewId) => async(dispatch) => {
+  const response = await csrfFetch(`api/reviews/${reviewId}`,{
+    method: "DELETE"
+  });
+  if(response.ok){
+    dispatch(deletedReview(reviewId))
+  }
+}
+
+
+
+
+
+
+
 
 //! --------------------------------------------------------------------
 //*                          Reducer
 //! --------------------------------------------------------------------
+
+//initial state
 const initialState = {
-  spots: [],
+  spotReviews: []
 };
 
-const spotsReducer = (state = initialState, action) => {
+
+export default function reviewsReducer(state = initialState, action) {
   switch (action.type) {
-    case SET_ALL_SPOTS:
-      return { ...state, spots: action.payload };
+    case SET_SPOT_REVIEWS:
+      return {...state, spotReviews: action.reviews};
+    
+    case ADD_REVIEWS:
+      return {...state, spotReviews:[...state.spotReviews, action.review]};
 
-    case SET_SPOT:
-      return { ...state, spots: [action.payload] };
+    case EDIT_REVIEWS:
+      return {
+        ...state, 
+        spotReviews:state.spotReviews.map(review => review.id === action.updatedReview.id ? {...review, ...action.updatedReview} : review)
+      }
 
-    case CREATE_SPOT:
-      return { ...state, spots: [action.payload, ...state.spots] };
-
-    case EDIT_SPOT:
+    case DELETE_REVIEWS:
       return {
         ...state,
-        spots: state.spots.map((spot) =>
-          spot.id === action.payload.id ? action.payload : spot
-        ),
-      };
-
-    case DELETE_SPOT:
-      return {
-        ...state,
-        spots: state.spots.filter((spot) => spot.id !== action.payload.id),
-      };
-
+        spotReviews: state.spotReviews.filter(review => review.id !== action.reviewId)
+      }
+    
     default:
       return state;
   }
-};
 
-export default spotsReducer;
+}

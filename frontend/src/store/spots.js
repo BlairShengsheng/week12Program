@@ -3,12 +3,11 @@ import { csrfFetch } from "./csrf";
 //! --------------------------------------------------------------------
 //*                        Action Types
 //! --------------------------------------------------------------------
-const SET_ALL_SPOTS = 'spots/SET_ALL_SPOTS';
-const SET_SPOT = 'spots/SET_SPOT';
-const CREATE_SPOT = 'spots/CREATE_SPOT';
-const EDIT_SPOT = 'spots/EDIT_SPOT';
-const DELETE_SPOT = 'spots/DELETE_SPOT';
-
+const SET_ALL_SPOTS = "spots/SET_ALL_SPOTS";
+const SET_SPOT = "spots/SET_SPOT";
+const CREATE_SPOT = "spots/CREATE_SPOT";
+const EDIT_SPOT = "spots/EDIT_SPOT";
+const DELETE_SPOT = "spots/DELETE_SPOT";
 
 //! --------------------------------------------------------------------
 //*                        Action Creators
@@ -45,10 +44,10 @@ export const deleteSpot = (deletedSpot) => ({
 
 // Fetch all spots
 export const setAllSpotsThunks = () => async (dispatch) => {
-  const response = await csrfFetch('/api/spots');
+  const response = await csrfFetch("/api/spots");
   if (response.ok) {
     const data = await response.json();
-    dispatch(setAllSpots(data.Spots));
+    dispatch(setAllSpots(data.Spots));// backend data Spots, go to localhost:.../api/spots in your browser 
   }
 };
 
@@ -68,10 +67,10 @@ export const getAspotThunk = (spotDataId) => async (dispatch) => {
 
 // Create a new spot
 export const createASpotThunk = (spotData) => async (dispatch) => {
-  const response = await csrfFetch('/api/spots', {
-    method: 'POST',
+  const response = await csrfFetch("/api/spots", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(spotData),
   });
@@ -91,8 +90,8 @@ export const createASpotThunk = (spotData) => async (dispatch) => {
 export const updateASpotThunk = (spotData) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/spots/${spotData.id}`, {
-      method: 'PUT', // Changed method to PUT for updates
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT", // Changed method to PUT for updates
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(spotData),
     });
     if (response.ok) {
@@ -110,10 +109,10 @@ export const updateASpotThunk = (spotData) => async (dispatch) => {
 export const deleteASpotThunk = (spotDataId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/spots/${spotDataId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
     if (response.ok) {
-      dispatch(deleteSpot( spotDataId ));
+      dispatch(deleteSpot(spotDataId));
       dispatch(setAllSpotsThunks()); // Re-fetch after deleting
     }
   } catch (err) {
@@ -126,46 +125,47 @@ export const deleteASpotThunk = (spotDataId) => async (dispatch) => {
 //! --------------------------------------------------------------------
 const initialState = {
   allSpots: {},
-  singleSpot: {}
+  singleSpot: {},
 };
 
 const spotsReducer = (state = initialState, action) => {
   switch (action.type) {
-      case SET_ALL_SPOTS: {
-          const newState = { ...state, allSpots: { ...state.allSpots } };
-          action.payload.forEach((spot) => {        //payload
-              newState.allSpots[spot.id] = spot;
-          });
-          return newState;
-      }
-      case SET_SPOT: {
-        return {
-            ...state,
-            singleSpot: action.payload,
-        };
-  }
-  case CREATE_SPOT: {
-    const newState = { 
-      ...state, 
-      allSpots: { ...state.allSpots, [action.payload.id]: action.payload }, 
-      singleSpot: action.payload // Optionally update singleSpot to the new spot
-    };
-    return newState;
-  }
+    case SET_ALL_SPOTS: {
+      const newState = { ...state, allSpots: { ...state.allSpots } };
+      action.payload.forEach((spot) => {
+        //payload
+        newState.allSpots[spot.id] = spot;
+      });
+      return newState;
+    }
+    case SET_SPOT: {
+      return {
+        ...state,
+        singleSpot: action.payload,
+      };
+    }
+    case CREATE_SPOT: {
+      const newState = {
+        ...state,
+        allSpots: { ...state.allSpots, [action.payload.id]: action.payload },
+        singleSpot: action.payload, // Optionally update singleSpot to the new spot
+      };
+      return newState;
+    }
 
-case EDIT_SPOT: {
-  const newState = { ...state };
-  newState.allSpots[action.payload.id] = action.payload; // Update the spot in the state
-  return newState;
-}
-case DELETE_SPOT: {
-  const newState = { ...state };
-  delete newState.allSpots[action.payload]; // Remove the spot from the state
-  return newState;
-}
-  default:
+    case EDIT_SPOT: {
+      const newState = { ...state };
+      newState.allSpots[action.payload.id] = action.payload; // Update the spot in the state
+      return newState;
+    }
+    case DELETE_SPOT: {
+      const newState = { ...state };
+      delete newState.allSpots[action.payload]; // Remove the spot from the state
+      return newState;
+    }
+    default:
       return state;
-}
+  }
 };
 
 export default spotsReducer;
