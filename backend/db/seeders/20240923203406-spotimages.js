@@ -15,21 +15,21 @@ module.exports = {
       {
         spotId: 1,
         url: "/images/01.png",
-        preview: false,
+        preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 2,
         url: "/images/02.png",
-        preview: false,
+        preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 3,
         url: "/images/03.png",
-        preview: false,
+        preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
