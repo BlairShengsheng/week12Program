@@ -14,39 +14,70 @@ module.exports = {
     await SpotImages.bulkCreate([
       {
         spotId: 1,
-        url: "/images/01.png",
+        url: "/images/previewImage1.jpg",
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 2,
-        url: "/images/02.png",
+        url: "/images/previewImage2.jpg",
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 3,
-        url: "/images/03.png",
+        url: "/images/previewImage3.jpg",
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 4,
-        url: "/images/04.png",
+        url: "/images/previewImage4.jpg",
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: 5,
-        url: "/images/05.png",
+        url: "/images/previewImage5.jpg",
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      },
+
+
+
+      {spotId:1, url: '/images/detail1.jpg', preview: false},
+      {spotId:1, url: '/images/detail2.jpg', preview: false},
+      {spotId:1, url: '/images/detail3.jpg', preview: false},
+      {spotId:1, url: '/images/detail4.jpg', preview: false},
+
+      {spotId:2, url: '/images/detail1.jpg', preview: false},
+      {spotId:2, url: '/images/detail2.jpg', preview: false},
+      {spotId:2, url: '/images/detail3.jpg', preview: false},
+      {spotId:2, url: '/images/detail4.jpg', preview: false},
+
+      {spotId:3, url: '/images/detail1.jpg', preview: false},
+      {spotId:3, url: '/images/detail2.jpg', preview: false},
+      {spotId:3, url: '/images/detail3.jpg', preview: false},
+      {spotId:3, url: '/images/detail4.jpg', preview: false},
+
+      {spotId:4, url: '/images/detail1.jpg', preview: false},
+      {spotId:4, url: '/images/detail2.jpg', preview: false},
+      {spotId:4, url: '/images/detail3.jpg', preview: false},
+      {spotId:4, url: '/images/detail4.jpg', preview: false},
+
+      {spotId:5, url: '/images/detail1.jpg', preview: false},
+      {spotId:5, url: '/images/detail2.jpg', preview: false},
+      {spotId:5, url: '/images/detail3.jpg', preview: false},
+      {spotId:5, url: '/images/detail4.jpg', preview: false},
+
+
+
+
 
     ],{validate: true});
   },
