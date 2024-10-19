@@ -1,19 +1,46 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { setAllSpotsThunks } from '../../store/spots';
+
 import { Reviews } from '../Reviews/Reviews';// import Reviews component
 import './SpotsDetails.css';
+
+
+import { getSpotReviewsThunk } from '../../store/reviews';// import Thunk from reviews store
 
 export function SpotsDetails() {
   const dispatch = useDispatch();
   const { spotId } = useParams();
   const spots = useSelector((state) => state.allSpots.allSpots);
   const spot = Object.values(spots).find((spot) => spot.id === Number(spotId));
+  console.log("love me:",spot);
+
+  const reviews = useSelector( state => state.reviews.spotReviews);//an object
+  const reviewArray = Object.values(reviews)//an array of reviews' objects
+
+  // const starValues = reviewArray .map(review => review.stars)// an array of all star values
+  // const totalStar = starValues.reduce((sum, star) => sum + star,0)
+  // const avgStar = totalStar/ starValues.length;
+  // console.log("please show me inside:", avgStar);
+
+  const [theStar, setStar] = useState(0);
 
   useEffect(() => {
     dispatch(setAllSpotsThunks());
-  }, [dispatch]);
+    dispatch(getSpotReviewsThunk(spotId));
+  }, [dispatch,spotId]);
+
+
+  useEffect(() => {
+    if (reviewArray.length > 0) {
+      const starValues = reviewArray.map(review => review.stars);
+      const totalStars = starValues.reduce((sum, star) => sum + star, 0);
+      const avgStar = totalStars/ starValues.length;
+      setStar(avgStar); // theStar = avgStar
+    }
+  }, [reviewArray]);
+
 
   if (!spot) {
     return <h1>Spot Not Found</h1>;
@@ -45,7 +72,7 @@ export function SpotsDetails() {
         <div className="reservation-box">
           <div className="price-rating">
             <span className="price">${spot.price} night</span>
-            <span className="rating">★ {spot.avgRating?.toFixed(1)} · {spot.numReviews} reviews</span>
+            <span className="rating">★ {theStar > 0 ? theStar.toFixed(1): "New"} · {reviewArray.length > 1 ? "reivews": "review"}</span>
           </div>
           <button className="reserve-button">Reserve</button>
         </div>
@@ -53,8 +80,8 @@ export function SpotsDetails() {
 
       <Reviews 
         spotId={spot.id} 
-        avgRating={spot.avgRating} 
-        numReviews={spot.numReviews} 
+
+
       />
     </div>
   );

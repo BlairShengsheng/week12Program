@@ -122,3 +122,53 @@
     width: 95%;
   }
 }
+
+
+.delete-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.delete-container h2 {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.delete-container h4 {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #484848;
+  font-weight: normal;
+}
+
+.delete-container button {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.confirm-delete-button {
+  background-color: #FF5A5F;
+  color: white;
+}
+
+.cancel-delete-button {
+  background-color: #717171;
+  color: white;
+}

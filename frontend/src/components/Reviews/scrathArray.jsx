@@ -7,54 +7,17 @@ export function Reviews({ spotId }) {
   const dispatch = useDispatch();
   const sessionUser = useSelector(state => state.session.user);
   const reviews = useSelector(state => state.reviews.spotReviews);
-  const allReviews = Object.values(reviews);
-
-  const spot = useSelector(state => state.allSpots.singleSpot); 
 
   const [showModal, setShowModal] = useState(false);
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [errors, setErrors] = useState({});
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [reviewIdToDelete, setReviewIdToDelete] = useState(null);
-
-
-  const [theStar, setStar] = useState(0);
-  useEffect(() => {
-    if (allReviews.length > 0) {
-      const starValues = allReviews.map(review => review.stars);
-      const totalStars = starValues.reduce((sum, star) => sum + star, 0);
-      const avgStar = totalStars/ starValues.length;
-      setStar(avgStar); // theStar = avgStar
-    }
-  }, [allReviews]);
-
-
-  
-
   useEffect(() => {
     dispatch(getSpotReviewsThunk(spotId))
       .then(() => console.log('reviews fetched successfully!'))
       .catch(error => console.error('Error fetching reviews:', error));
   }, [dispatch, spotId]);
-
-  // const canPostReview = sessionUser && spot && (
-  //   !allReviews.find(review => review.userId === sessionUser.id) &&
-  //   sessionUser.id !== spot.ownerId
-  // );
-
-  let canPostReview = false;
-
-  if (sessionUser && spot) { // check if the person is log in and also the spot exists
-    const hasUserReviewed = allReviews.find(review => review.userId === sessionUser.id); // check if the person has posted review on this spot before or not
-    const isOwner = sessionUser.id === spot.ownerId; // check if this person is the owner of this place or not
-
-    if (!hasUserReviewed && !isOwner) { // if this person hasn't post any review for this place yet and also he is not the owner of ths place
-      canPostReview = true; 
-    }
-}
-
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -90,10 +53,9 @@ export function Reviews({ spotId }) {
   
     const reviewData = { review: reviewText, stars: rating };
     try {
-      const result = await dispatch(createReviewThunk(spotId, reviewData));
-      if (result && result.id) {
+      const newReview = await dispatch(createReviewThunk(spotId, reviewData));
+      if (newReview && newReview.id) {
         handleCloseModal();
-        dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after submission
       } else {
         setErrors({ submission: "Failed to submit review. Please try again." });
       }
@@ -103,41 +65,27 @@ export function Reviews({ spotId }) {
     }
   };
 
-  const handleDeleteClick = (reviewId) => {
-    setShowDeleteModal(true);
-    setReviewIdToDelete(reviewId);
-  }
-
-  const handleConfirmDelete = async () => {
+  const handleDeleteReview = async (reviewId) => {
     try {
-      if(reviewIdToDelete){
-        await dispatch(deleteReviewThunk(reviewIdToDelete));
-        await dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after deletion
-        setShowDeleteModal(false);
-        setReviewIdToDelete(null);
-      }
+      await dispatch(deleteReviewThunk(reviewId));
     } catch (error) {
       console.error("Error deleting review:", error);
     }
-  }
+  };
 
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setReviewIdToDelete(null);
-  }
+  const averageRating = reviews.length ? (reviews.reduce((sum, review) => sum + review.stars, 0) / reviews.length).toFixed(1) : 'New';
+  const canPostReview = sessionUser && !reviews.find(review => review.userId === sessionUser.id);
 
   return (
     <div className="reviews-section">
-      <div className="reviews-header">
+      <h2>★ {averageRating} · {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}</h2>
+      
+      {canPostReview && (
+        <button onClick={handleOpenModal} className="post-review-button">Post Your Review</button>
+      )}
 
-        <h2>★ {theStar > 0 ? theStar.toFixed(1): "New"} · {allReviews.length} {allReviews.length > 1 ? "reivews": "review"}</h2>
-        
-       {canPostReview && (
-          <button onClick={handleOpenModal} className="post-review-button">Post Your Review</button>
-        )}
-      </div>
 
-      {showModal && (
+{showModal && (
         <div className="review-modal">
           <h3>How was your stay?</h3>
           <textarea
@@ -170,29 +118,18 @@ export function Reviews({ spotId }) {
           <button onClick={handleCloseModal}>Cancel</button>
         </div>
       )}
-         
-      {allReviews.map((review) => (
+
+
+      {reviews.map((review) => (
         <div key={review.id} className="review">
-          <h3>{review.User.firstName}</h3>
+          <h3>{review.User?.firstName || 'Anonymous'}</h3>
           <p>{new Date(review.createdAt).toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
           <p>{review.review}</p>
-
           {sessionUser && sessionUser.id === review.userId && (
-            <button onClick={() => handleDeleteClick(review.id)} className="delete-review-button">Delete</button>
+            <button onClick={() => handleDeleteReview(review.id)}>Delete</button>
           )}
         </div>
       ))}
-
-      {showDeleteModal && (
-        <div className="delete-container">
-          <h2>Confirm Delete</h2>
-          <h4>Are you sure you want to delete this review?</h4>
-          <button onClick={handleConfirmDelete} className="confirm-delete-button">Yes (Delete Review)</button>
-          <button onClick={handleCancelDelete} className="cancel-delete-button">No (Keep Review)</button>
-        </div>
-      )}
     </div>
   );
 }
-
-export default Reviews;

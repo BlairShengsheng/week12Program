@@ -8,7 +8,7 @@ import { csrfFetch } from "./csrf";
 
 const SET_SPOT_REVIEWS = 'reviews/SET_SPOT_REVIEWS';
 const ADD_REVIEWS = 'reviews/ADD_REVIEWS';
-const EDIT_REVIEWS = 'reviews/EDIT_REVIEWS';
+// const EDIT_REVIEWS = 'reviews/EDIT_REVIEWS';
 const DELETE_REVIEWS = 'reviews/DELETE_REVIEWS';
 
 
@@ -33,12 +33,12 @@ export const addReview = (review) => {
   }
 }
 
-export const editReview = (updatedReview) => {
-  return {
-    type: EDIT_REVIEWS,
-    updatedReview
-  }
-}
+// export const editReview = (updatedReview) => {
+//   return {
+//     type: EDIT_REVIEWS,
+//     updatedReview
+//   }
+// }
 
 export const deletedReview = (reviewId) => {
   return {
@@ -61,11 +61,9 @@ export const getSpotReviewsThunk = (spotId) => async (dispatch) => {
     const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
     if (response.ok) {
       const data = await response.json();
-      const normalizedReviews = data.Reviews.map(review => ({
-        ...review,
-        User: review.User || { firstName: 'Anonymous', lastName: '' }
-      }));
-      dispatch(setSpotReviews(normalizedReviews));
+      // console.log('Hello', data)
+
+      dispatch(setSpotReviews(data.Reviews));
     }
   } catch (error) {
     console.error('Error fetching reviews:', error);
@@ -83,13 +81,10 @@ export const createReviewThunk = (spotId, reviewData) => async (dispatch) => {
     });
     if (response.ok) {
       const data = await response.json();
-      const normalizedReviews = data.Reviews.map(review => ({
-        ...review,
-        User: review.User || { firstName: 'Anonymous', lastName: '' }
-      }));
 
-      dispatch(addReview(normalizedReviews));
-      return newReview;
+    //  await dispatch(addReview(data));
+     await dispatch(getSpotReviewsThunk(spotId));
+     return data;
     }
   } catch (error) {
     console.error("Error creating review:", error);
@@ -98,31 +93,32 @@ export const createReviewThunk = (spotId, reviewData) => async (dispatch) => {
 };
 
 //Edit a review by its reviewId
-export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
-  const response = csrfFetch(`api/reviews/${reviewId}`, {
-    method:"PUT",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(reviewData),
-  });
+// export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
+//   const response = csrfFetch(`api/reviews/${reviewId}`, {
+//     method:"PUT",
+//     headers: {"Content-Type": "application/json"},
+//     body: JSON.stringify(reviewData),
+//   });
 
-  if(response.ok) {
-    const updateReview = response.json();
-    dispatch(editReview(updateReview));
-    return updateReview;
-  } else {
-    const errors = await response.json();
-    return errors;
-  }
-}
+//   if(response.ok) {
+//     const updateReview = response.json();
+//     dispatch(editReview(updateReview));
+//     // dispatch(getSpotReviewsThunk(spotId));
+//   } else {
+//     const errors = await response.json();
+//     return errors;
+//   }
+// }
 
 //Delete a review by its reviewId
-export const deleteReviewThunk = (reviewId) => async (dispatch) => {
+export const deleteReviewThunk = (reviewId, spotId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/reviews/${reviewId}`, {
       method: 'DELETE',
     });
     if (response.ok) {
-      dispatch(deletedReview(reviewId));
+      await dispatch(deletedReview(reviewId));
+      await dispatch (getSpotReviewsThunk(spotId))
       return { success: true };
     }
   } catch (error) {
@@ -144,30 +140,37 @@ export const deleteReviewThunk = (reviewId) => async (dispatch) => {
 
 //initial state
 const initialState = {
-  spotReviews: []
+  spotReviews: {}
 };
 
 
 export default function reviewsReducer(state = initialState, action) {
   switch (action.type) {
+    
     case SET_SPOT_REVIEWS:
-      return {...state, spotReviews: action.reviews};
-    
-    case ADD_REVIEWS:
-      return {...state, spotReviews:[...state.spotReviews, action.review]};
+      return { ...state, spotReviews: {
+        ...action.reviews.reduce((acc,review)=> {
+          acc[review.id] = review;
+          return acc
+        }, {})
+      }}
 
-    case EDIT_REVIEWS:
-      return {
-        ...state, 
-        spotReviews:state.spotReviews.map(review => review.id === action.updatedReview.id ? {...review, ...action.updatedReview} : review)
-      }
-
-    case DELETE_REVIEWS:
-      return {
-        ...state,
-        spotReviews: state.spotReviews.filter(review => review.id !== action.reviewId)
-      }
     
+    // case ADD_REVIEWS:
+    //   return {...state, spotReviews:[...state.spotReviews, action.review]};
+
+    // case EDIT_REVIEWS:
+    //   return {
+    //     ...state, 
+    //     spotReviews:state.spotReviews.map(review => review.id === action.updatedReview.id ? {...review, ...action.updatedReview} : review)
+    //   }
+
+    case DELETE_REVIEWS: {
+      const newState = {...state};
+      delete newState.spotReviews[action.reviewId];
+      return newState;
+    }
+
     default:
       return state;
   }

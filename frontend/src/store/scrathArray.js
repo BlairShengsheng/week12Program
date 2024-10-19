@@ -74,22 +74,23 @@ export const getSpotReviewsThunk = (spotId) => async (dispatch) => {
 
 
 //Add a review by its spotId
-export const createReviewThunk = (spotId, reviewData) => async(dispatch) => {
-  const response = csrfFetch(`api/spots/${spotId}/reviews`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(reviewData),
-  });
-  if(response.ok){
-    const newReview = response.json();
-    dispatch(addReview(newReview));
-    dispatch(getSpotReviewsThunk(spotId))// re-fetch all spots, maintaining consistency with the backend
-
-  } else {
-    const errors = await response.json();
-    return errors;
+export const createReviewThunk = (spotId, reviewData) => async (dispatch) => {
+  try {
+    const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reviewData),
+    });
+    if (response.ok) {
+      const newReview = await response.json();
+      dispatch(addReview(newReview)); // Dispatch a single review, not an array
+      return newReview;
+    }
+  } catch (error) {
+    console.error("Error creating review:", error);
+    throw error;
   }
-}
+};
 
 //Edit a review by its reviewId
 export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
@@ -102,7 +103,7 @@ export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
   if(response.ok) {
     const updateReview = response.json();
     dispatch(editReview(updateReview));
-    // dispatch(getSpotReviewsThunk(spotId));
+    return updateReview;
   } else {
     const errors = await response.json();
     return errors;
@@ -110,14 +111,20 @@ export const updateReviewThunk = (reviewId, reviewData) => async(dispatch) => {
 }
 
 //Delete a review by its reviewId
-export const deleteReviewThunk = (reviewId) => async(dispatch) => {
-  const response = await csrfFetch(`api/reviews/${reviewId}`,{
-    method: "DELETE"
-  });
-  if(response.ok){
-    dispatch(deletedReview(reviewId))
+export const deleteReviewThunk = (reviewId) => async (dispatch) => {
+  try {
+    const response = await csrfFetch(`/api/reviews/${reviewId}`, {
+      method: 'DELETE',
+    });
+    if (response.ok) {
+      dispatch(deletedReview(reviewId));
+      return { success: true };
+    }
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    throw error;
   }
-}
+};
 
 
 
@@ -142,7 +149,7 @@ export default function reviewsReducer(state = initialState, action) {
       return {...state, spotReviews: action.reviews};
     
     case ADD_REVIEWS:
-      return {...state, spotReviews:[...state.spotReviews, action.review]};
+      return {...state, spotReviews: [action.review, ...state.spotReviews]};
 
     case EDIT_REVIEWS:
       return {
