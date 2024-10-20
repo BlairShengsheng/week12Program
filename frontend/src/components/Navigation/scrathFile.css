@@ -1,63 +1,87 @@
 .profile-dropdown.hidden {
-  display: none;
+  display: none; /* Hides the dropdown when it has the 'hidden' class */
 }
 
 .profile-dropdown {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000; /* This ensures it appears in front of other elements */
-  right: 0; /* Aligns the dropdown to the right of its container */
-  top: 100%; /* Positions the dropdown just below its container */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+  position: absolute; /* Positions the dropdown absolutely within its nearest positioned ancestor */
+  background-color: white; /* Sets the background color to white */
+  border: 1px solid #6b6868; /* Adds a light gray border around the dropdown */
+  padding: 10px; /* Adds 10 pixels of padding inside the dropdown */
+  display: flex; /* Uses Flexbox layout for the dropdown items */
+  flex-direction: column; /* Arranges dropdown items in a column */
+  z-index: 1000; /* Ensures the dropdown appears above other elements */
+  right: 0; /* Aligns the dropdown to the right */
+  top: 100%; /* Positions the dropdown directly below its trigger */
+  box-shadow: 0 0px 20px 20px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow effect */
+  min-width: 150px; /* Ensures a minimum width for the dropdown */
 }
 
 .profile-dropdown > * {
-  margin-bottom: 10px; /* Adds space between items */
+  margin-bottom: 10px; /* Adds 10 pixels of space below each dropdown item */
 }
 
 .profile-dropdown > *:last-child {
-  margin-bottom: 0; /* Removes margin from the last item */
+  margin-bottom: 0; /* Removes the margin below the last dropdown item */
+}
+
+/* New styles for buttons container */
+.profile-dropdown li:last-child {
+  display: flex; /* Sets the last list item to use Flexbox */
+  flex-direction: column; /* Arranges its children in a column */
+  gap: 10px; /* Adds a 10-pixel gap between its children */
+}
+
+/* Styles for Manage Spot and Log Out buttons */
+.profile-dropdown button {
+  width: 100%; /* Makes buttons fill the full width of their container */
+  padding: 8px; /* Adds 8 pixels of padding inside the buttons */
+  background-color: #f0f0f0; /* Sets a light gray background color */
+  border: 1px solid #ccc; /* Adds a light gray border */
+  border-radius: 4px; /* Rounds the corners of the buttons */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  text-align: center; /* Centers the button text */
+  border-radius: 20px; /* Rounds the corners of the button more significantly */
+}
+
+.profile-dropdown button:hover {
+  background-color: #e0e0e0; /* Changes the background color on hover */
 }
 
 .airbnb-home-text {
-  font-size: 35px;
-  color: red;
-  cursor: pointer;
+  font-size: 35px; /* Sets the font size to 35 pixels */
+  color: red; /* Sets the text color to red */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
 }
 
 .Nav-container {
-  display: flex;
-  background: linear-gradient(180deg, #f2e7d5 0%, #e5d1c4 100%);
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #87898a;
-  position: relative; /* This helps with positioning the dropdown */
+  display: flex; /* Uses Flexbox layout for the navigation container */
+  background: linear-gradient(180deg, #f2e7d5 0%, #e5d1c4 100%); /* Creates a vertical gradient background */
+  justify-content: space-between; /* Distributes space between child elements */
+  align-items: center; /* Vertically centers child elements */
+  border-bottom: 2px solid #87898a; /* Adds a dark gray border at the bottom */
+  position: relative; /* Establishes a positioning context for absolutely positioned children */
 }
 
 ul {
-  list-style-type: none;
-  display: flex;
-  gap: 20px;
+  list-style-type: none; /* Removes default bullet points from the list */
+  display: flex; /* Uses Flexbox layout for the list items */
+  gap: 20px; /* Adds a 20-pixel gap between list items */
 }
 
 li {
-  display: inline;
+  display: inline; /* Displays list items inline */
 }
 
 /* ----------------Home -----------------*/
 a {
-  text-decoration: none;
-  color: black;
-  display: flex;
-  align-items: center;
-  position: relative;
-  bottom: -10px;
+  text-decoration: none; /* Removes the underline from links */
+  color: black; /* Sets the text color of links to black */
+  display: flex; /* Uses Flexbox layout for links */
+  align-items: center; /* Vertically centers link content */
+  position: relative; /* Establishes a positioning context for children */
+  bottom: -10px; /* Moves the link down by 10 pixels */
 }
 
 a:hover {
-  color: red;
+  color: red; /* Changes the link color to red on hover */
 }
