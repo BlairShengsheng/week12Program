@@ -5,7 +5,8 @@ import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
-import './ProfileButton.css';
+
+import './Navigation.css';
 
 import { useNavigate } from 'react-router-dom';//----Add this line
 
@@ -19,9 +20,9 @@ function ProfileButton({ user }) {
 
   const navigate = useNavigate(); //----Add this line 
 
-  const redirectingNew = () => {  //----Add this line 
-    navigate('/spots/new')
-  };
+  // const redirectingNew = () => {  //----Add this line 
+  //   navigate('/spots/new')
+  // };
   const redirectingCurrent = () => { //----Add this line 
     navigate('/spots/current')
   }
@@ -59,11 +60,11 @@ function ProfileButton({ user }) {
 
   return (
     <>
-      {user && (
+      {/* {user && (
         <p className='show you alredy here' onClick={redirectingNew}>
-          wowLa! You are here!
+          You are logged in/ signed in!
         </p>
-      )}
+      )} */}
       
       <button onClick={toggleMenu}>
         <FaUserCircle />
