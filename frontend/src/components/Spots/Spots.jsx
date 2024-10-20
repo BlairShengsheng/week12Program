@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAllSpotsThunks } from '../../store/spots';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,19 @@ import './Spots.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from "@fortawesome/fontawesome-free-solid";
+
+
+
+// List of image filenames in your public/images folder
+const imageFilenames = [
+  'previewImage1.jpg',
+  'previewImage2.jpg',
+  'previewImage3.jpg',
+  'previewImage4.jpg',
+  'previewImage5.jpg',
+  // Add all your image filenames here
+];
+
 
 
  //! --------------------------------------------------------------------
@@ -31,17 +44,48 @@ export function Spots() {
     dispatch(setAllSpotsThunks());
   }, [dispatch]);
 
+
+  const [spotsWithImages, setSpotsWithImages] = useState([]);
+
+  useEffect(() => {
+    if (Object.keys(spots).length > 0) {
+      const updatedSpots = Object.values(spots).map((spot, index) => {
+        const assignedImage = imageFilenames[index % imageFilenames.length];
+        return {
+          ...spot,
+          previewImage: assignedImage,
+          smallImages: [
+            imageFilenames[(index + 1) % imageFilenames.length],
+            imageFilenames[(index + 2) % imageFilenames.length],
+            imageFilenames[(index + 3) % imageFilenames.length],
+            imageFilenames[(index + 4) % imageFilenames.length],
+          ]
+        };
+      });
+      setSpotsWithImages(updatedSpots);
+    }
+  }, [spots]);
+
+
+
+
+
     return (
       <>
         <div className="spots-container">
-
-          {Object.values(spots).map((spot, i) => (// spots from useSelector
+          {/* bject.values(spots)*/}
+          {spotsWithImages.map((spot, i) => (// spots from useSelector
 
             <Link to={`/spots/${spot.id}`} key={i}>
 
               <div key={i} className="single-spot-container">
                 <div className="spot-placeholder">
-
+                  {/*add some change over here  */}
+                <img 
+                 src={`/images/${spot.previewImage}`} 
+                 alt={spot.name}
+                 className="spot-image"
+                />
                  
                   <div className="empty-block1">{spot.city},{spot.state}</div>
 

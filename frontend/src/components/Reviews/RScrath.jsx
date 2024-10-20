@@ -7,7 +7,9 @@ export function Reviews({ spotId }) {
   const dispatch = useDispatch();
   const sessionUser = useSelector(state => state.session.user);
   const reviews = useSelector(state => state.reviews.spotReviews);
-  const spot = useSelector(state => state.allSpots.singleSpot); // Assuming you have a singleSpot in your spots reducer
+  const allReviews = Object.values(reviews);
+
+  const spot = useSelector(state => state.allSpots.singleSpot); 
 
   const [showModal, setShowModal] = useState(false);
   const [reviewText, setReviewText] = useState('');
@@ -17,7 +19,19 @@ export function Reviews({ spotId }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [reviewIdToDelete, setReviewIdToDelete] = useState(null);
 
-  const allReviews = Object.values(reviews);
+
+  const [theStar, setStar] = useState(0);
+  useEffect(() => {
+    if (allReviews.length > 0) {
+      const starValues = allReviews.map(review => review.stars);
+      const totalStars = starValues.reduce((sum, star) => sum + star, 0);
+      const avgStar = totalStars/ starValues.length;
+      setStar(avgStar); // theStar = avgStar
+    }
+  }, [allReviews]);
+
+
+  
 
   useEffect(() => {
     dispatch(getSpotReviewsThunk(spotId))
@@ -115,9 +129,9 @@ export function Reviews({ spotId }) {
   return (
     <div className="reviews-section">
       <div className="reviews-header">
-        <h2>★ {spot?.avgStarRating?.toFixed(1) || 'New'} · {allReviews.length} {allReviews.length === 1 ? 'review' : 'reviews'}</h2>
-        
 
+        <h2>★ {theStar > 0 ? theStar.toFixed(1): "New"} · {allReviews.length} {allReviews.length > 1 ? "reivews": "review"}</h2>
+        
        {canPostReview && (
           <button onClick={handleOpenModal} className="post-review-button">Post Your Review</button>
         )}

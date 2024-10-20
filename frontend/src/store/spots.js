@@ -1,5 +1,14 @@
 import { csrfFetch } from "./csrf";
 
+const imageFilenames = [
+  'previewImage1.jpg',
+  'previewImage2.jpg',
+  'previewImage3.jpg',
+  'previewImage4.jpg',
+  'previewImage5.jpg',
+  // Add all your image filenames here
+];
+
 //! --------------------------------------------------------------------
 //*                        Action Types
 //! --------------------------------------------------------------------
@@ -43,11 +52,30 @@ export const deleteSpot = (deletedSpot) => ({
 //! --------------------------------------------------------------------
 
 // Fetch all spots
+// export const setAllSpotsThunks = () => async (dispatch) => {
+//   const response = await csrfFetch("/api/spots");
+//   if (response.ok) {
+//     const data = await response.json();
+//     dispatch(setAllSpots(data.Spots));// backend data Spots, go to localhost:.../api/spots in your browser 
+//   }
+// };
+
+
 export const setAllSpotsThunks = () => async (dispatch) => {
   const response = await csrfFetch("/api/spots");
   if (response.ok) {
     const data = await response.json();
-    dispatch(setAllSpots(data.Spots));// backend data Spots, go to localhost:.../api/spots in your browser 
+    const spotsWithImages = data.Spots.map((spot, index) => ({
+      ...spot,
+      previewImage: imageFilenames[index % imageFilenames.length],
+      smallImages: [
+        imageFilenames[(index + 1) % imageFilenames.length],
+        imageFilenames[(index + 2) % imageFilenames.length],
+        imageFilenames[(index + 3) % imageFilenames.length],
+        imageFilenames[(index + 4) % imageFilenames.length],
+      ]
+    }));
+    dispatch(setAllSpots(spotsWithImages));
   }
 };
 
@@ -138,6 +166,7 @@ const spotsReducer = (state = initialState, action) => {
       });
       return newState;
     }
+
     case SET_SPOT: {
       return {
         ...state,

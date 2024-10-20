@@ -10,11 +10,13 @@ import './SpotsDetails.css';
 import { getSpotReviewsThunk } from '../../store/reviews';// import Thunk from reviews store
 
 export function SpotsDetails() {
+
   const dispatch = useDispatch();
   const { spotId } = useParams();
   const spots = useSelector((state) => state.allSpots.allSpots);
   const spot = Object.values(spots).find((spot) => spot.id === Number(spotId));
-  console.log("love me:",spot);
+  // console.log("let me see what is inside:", spot.previewImage)
+  // const spot = spots[spotId];
 
   const reviews = useSelector( state => state.reviews.spotReviews);//an object
   const reviewArray = Object.values(reviews)//an array of reviews' objects
@@ -28,6 +30,7 @@ export function SpotsDetails() {
 
   useEffect(() => {
     dispatch(setAllSpotsThunks());
+    // dispatch (deleteReviewThunk( spotId))
     dispatch(getSpotReviewsThunk(spotId));
   }, [dispatch,spotId]);
 
@@ -38,6 +41,8 @@ export function SpotsDetails() {
       const totalStars = starValues.reduce((sum, star) => sum + star, 0);
       const avgStar = totalStars/ starValues.length;
       setStar(avgStar); // theStar = avgStar
+    } else {
+      setStar(0);
     }
   }, [reviewArray]);
 
@@ -53,14 +58,20 @@ export function SpotsDetails() {
 
       <div className="image-gallery">
         <div className="large-image">
-          <img src={spot.mainImage} alt="Main view of spot" />
+          <img src={`/images/${spot.previewImage}`} alt="Main view of spot" />
         </div>
-        <div className="small-images">
+        {/* <div className="small-images">
           <img src={spot.secondaryImage1} alt="Secondary view 1" />
           <img src={spot.secondaryImage2} alt="Secondary view 2" />
           <img src={spot.secondaryImage3} alt="Secondary view 3" />
           <img src={spot.secondaryImage4} alt="Secondary view 4" />
+        </div> */}
+        <div className="small-images">
+          {spot.smallImages && spot.smallImages.map((img, index) => (
+            <img key={index} src={`/images/${img}`} alt={`Secondary view ${index + 1}`} />
+          ))}
         </div>
+
       </div>
 
       <div className="spot-info-container">
@@ -80,6 +91,7 @@ export function SpotsDetails() {
 
       <Reviews 
         spotId={spot.id} 
+        onReviewChange={() => dispatch(getSpotReviewsThunk(spotId))}// refetch all the reviews agains/ like a hook over here
 
 
       />

@@ -66,7 +66,8 @@ export function ManageSpot() {
         {userSpots.map((spot) => (
           <div key={spot.id} className="spot-card">
             <img 
-              src={spot.previewImage || '/placeholder-image.jpg'}
+              // src={spot.previewImage || '/placeholder-image.jpg'}
+              src={'/images/detail1.jpg'}
               alt={spot.name}
               className="spot-image"
             />

@@ -15,9 +15,10 @@
 }
 .Nav-container {
   display: flex;
-  background-color: rgb(225, 207, 152);
+  background: linear-gradient(180deg, #f2e7d5 0%, #e5d1c4 100%);
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid #87898a;
 }
 
 ul {

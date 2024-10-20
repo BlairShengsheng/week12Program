@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getSpotReviewsThunk, createReviewThunk, deleteReviewThunk } from '../../store/reviews';
 import './Reviews.css';
 
-export function Reviews({ spotId }) {
+export function Reviews({ spotId , onReviewChange}) { // also pass function here
   const dispatch = useDispatch();
   const sessionUser = useSelector(state => state.session.user);
   const reviews = useSelector(state => state.reviews.spotReviews);
@@ -34,15 +34,14 @@ export function Reviews({ spotId }) {
   
 
   useEffect(() => {
-    dispatch(getSpotReviewsThunk(spotId))
+    
+    dispatch(getSpotReviewsThunk(spotId))// same as using: onReviewChange();
+    
       .then(() => console.log('reviews fetched successfully!'))
       .catch(error => console.error('Error fetching reviews:', error));
   }, [dispatch, spotId]);
 
-  // const canPostReview = sessionUser && spot && (
-  //   !allReviews.find(review => review.userId === sessionUser.id) &&
-  //   sessionUser.id !== spot.ownerId
-  // );
+
 
   let canPostReview = false;
 
@@ -93,7 +92,7 @@ export function Reviews({ spotId }) {
       const result = await dispatch(createReviewThunk(spotId, reviewData));
       if (result && result.id) {
         handleCloseModal();
-        dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after submission
+        dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after submission same as using : onReviewChange();
       } else {
         setErrors({ submission: "Failed to submit review. Please try again." });
       }
@@ -112,7 +111,8 @@ export function Reviews({ spotId }) {
     try {
       if(reviewIdToDelete){
         await dispatch(deleteReviewThunk(reviewIdToDelete));
-        await dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after deletion
+        // await dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after deletion
+        await onReviewChange();
         setShowDeleteModal(false);
         setReviewIdToDelete(null);
       }
@@ -129,11 +129,31 @@ export function Reviews({ spotId }) {
   return (
     <div className="reviews-section">
       <div className="reviews-header">
+        {/* <h2>
+          ★{" "}
+          {theStar > 0 && allReviews.length !== 0 ? theStar.toFixed(1) : "New"}{" "}
+          · {allReviews.length} {allReviews.length > 1 ? "reivews" : "review"}
+        </h2> */}
 
-        <h2>★ {theStar > 0 ? theStar.toFixed(1): "New"} · {allReviews.length} {allReviews.length > 1 ? "reivews": "review"}</h2>
-        
-       {canPostReview && (
-          <button onClick={handleOpenModal} className="post-review-button">Post Your Review</button>
+        <h2>
+          ★{" "}
+          {theStar > 0 && allReviews.length !== 0
+            ? `${theStar.toFixed(1)} · ${allReviews.length} ${
+                allReviews.length > 1 ? "reviews" : "review"
+              }`
+            : "New"}
+        </h2>
+      </div>
+
+      <div className="reviews-content">
+        {canPostReview && (
+          <button onClick={handleOpenModal} className="post-review-button">
+            Post Your Review
+          </button>
+        )}
+
+        {allReviews.length === 0 && canPostReview && (
+          <h4>Be the first to post a review!</h4>
         )}
       </div>
 
@@ -150,7 +170,7 @@ export function Reviews({ spotId }) {
             {[1, 2, 3, 4, 5].map((star) => (
               <span
                 key={star}
-                className={`star ${star <= rating ? 'filled' : ''}`}
+                className={`star ${star <= rating ? "filled" : ""}`}
                 onMouseEnter={() => handleStarHover(star)}
                 onMouseLeave={() => handleStarHover(0)}
                 onClick={() => handleStarClick(star)}
@@ -161,8 +181,8 @@ export function Reviews({ spotId }) {
             <span>Stars</span>
           </div>
           {errors.rating && <p className="error">{errors.rating}</p>}
-          <button 
-            onClick={handleSubmitReview} 
+          <button
+            onClick={handleSubmitReview}
             disabled={reviewText.length < 10 || rating === 0}
           >
             Submit Your Review
@@ -170,15 +190,25 @@ export function Reviews({ spotId }) {
           <button onClick={handleCloseModal}>Cancel</button>
         </div>
       )}
-         
+
       {allReviews.map((review) => (
         <div key={review.id} className="review">
           <h3>{review.User.firstName}</h3>
-          <p>{new Date(review.createdAt).toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+          <p>
+            {new Date(review.createdAt).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
           <p>{review.review}</p>
 
           {sessionUser && sessionUser.id === review.userId && (
-            <button onClick={() => handleDeleteClick(review.id)} className="delete-review-button">Delete</button>
+            <button
+              onClick={() => handleDeleteClick(review.id)}
+              className="delete-review-button"
+            >
+              Delete
+            </button>
           )}
         </div>
       ))}
@@ -187,8 +217,15 @@ export function Reviews({ spotId }) {
         <div className="delete-container">
           <h2>Confirm Delete</h2>
           <h4>Are you sure you want to delete this review?</h4>
-          <button onClick={handleConfirmDelete} className="confirm-delete-button">Yes (Delete Review)</button>
-          <button onClick={handleCancelDelete} className="cancel-delete-button">No (Keep Review)</button>
+          <button
+            onClick={handleConfirmDelete}
+            className="confirm-delete-button"
+          >
+            Yes (Delete Review)
+          </button>
+          <button onClick={handleCancelDelete} className="cancel-delete-button">
+            No (Keep Review)
+          </button>
         </div>
       )}
     </div>

@@ -6,7 +6,7 @@ form {
   flex-direction: column;    /* Stack elements vertically */
   align-items: center;       /* Center form elements horizontally */
   margin: 0 auto;            /* Auto margin to horizontally center the form */
-  background-color: aquamarine;
+  background: linear-gradient(180deg, #f2e7d5 0%, #e5d1c4 100%);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
