@@ -54,6 +54,10 @@ export function ManageSpot() {
     navigate('/');
     return null;
   }
+  const handleImageClick = (spotId) => {
+    navigate(`/spots/${spotId}`);
+  };
+
 
   return (
     <div className="manage-spots-container">
@@ -65,16 +69,20 @@ export function ManageSpot() {
       <div className="spots-grid">
         {userSpots.map((spot) => (
           <div key={spot.id} className="spot-card">
+
             <img 
               // src={spot.previewImage || '/placeholder-image.jpg'}
               src={'/images/detail1.jpg'}
               alt={spot.name}
               className="spot-image"
+              onClick={() => handleImageClick(spot.id)}
+              style={{ cursor: 'pointer' }}
             />
             <div className="spot-info">
               <p>{spot.city}, {spot.state}</p>
               <p className="price">${spot.price} night</p>
-              <p className="rating">★ {spot.avgRating || 'New'}</p>
+              {/* <p className="rating">★ {spot.avgRating || 'New'}</p> */}
+              <p className="rating">★ {spot.stars || 'New'}</p>
             </div>
             <div className="spot-actions">
               <button onClick={() => handleUpdate(spot.id)} className="update-button">

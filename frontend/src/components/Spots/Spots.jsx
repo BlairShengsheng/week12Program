@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import './Spots.css';
 
 
+
 //icon stuff
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -36,6 +37,9 @@ export function Spots() {
   // allSpots is reducer from rootreducer, spots is a key in initialstate (find it in the reducer)
   const spots = useSelector((state) => state.allSpots.allSpots);//-------change over here
 
+ 
+
+
    // Sort spots by newest first
   //  const sortedSpots = [...spots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -44,13 +48,14 @@ export function Spots() {
     dispatch(setAllSpotsThunks());
   }, [dispatch]);
 
-
+ //------------------------------------Images Part------------------------------------------ 
   const [spotsWithImages, setSpotsWithImages] = useState([]);
 
   useEffect(() => {
     if (Object.keys(spots).length > 0) {
       const updatedSpots = Object.values(spots).map((spot, index) => {
         const assignedImage = imageFilenames[index % imageFilenames.length];
+
         return {
           ...spot,
           previewImage: assignedImage,
@@ -60,11 +65,14 @@ export function Spots() {
             imageFilenames[(index + 3) % imageFilenames.length],
             imageFilenames[(index + 4) % imageFilenames.length],
           ]
+         
         };
       });
       setSpotsWithImages(updatedSpots);
     }
   }, [spots]);
+
+//------------------------------------Images Part------------------------------------------ 
 
 
 
@@ -78,7 +86,9 @@ export function Spots() {
 
             <Link to={`/spots/${spot.id}`} key={i}>
 
-              <div key={i} className="single-spot-container">
+              <div key={i} className="single-spot-container"
+              title={spot.name}// This adds the tooltip
+              >
                 <div className="spot-placeholder">
                   {/*add some change over here  */}
                 <img 
@@ -86,13 +96,14 @@ export function Spots() {
                  alt={spot.name}
                  className="spot-image"
                 />
-                 
+                 {/* <div className='tooltip'>{spot.name}</div> */}
                   <div className="empty-block1">{spot.city},{spot.state}</div>
 
                   <div className="empty-block2">${spot.price}/night</div>
                   
                   <div className='star-icon'>
-                  <FontAwesomeIcon icon={faStar} color='black'/>ratings
+                  <FontAwesomeIcon icon={faStar} color='black'/>rating
+                  {spot.avgRating ? spot.avgRating.toFixed(1) : 'New'}
                   </div>
             
 

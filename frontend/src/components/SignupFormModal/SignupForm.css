@@ -18,7 +18,6 @@ input {
 
 button {
   padding: 0.7rem 2rem;
-  /* background-color: #007bff; */
   background: linear-gradient(180deg, #e5a43a 0%, #9b6743 100%);
   color: white;
   border: 2px solid rgb(78, 76, 76);
@@ -28,6 +27,12 @@ button {
 
 button:hover {
   background-color: #7a3d10;
+}
+
+button:disabled {
+  background: linear-gradient(180deg, #cccccc 0%, #999999 100%);
+  border-color: #999999;
+  cursor: not-allowed;
 }
 
 p {

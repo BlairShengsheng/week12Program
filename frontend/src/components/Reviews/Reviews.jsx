@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getSpotReviewsThunk, createReviewThunk, deleteReviewThunk } from '../../store/reviews';
 import './Reviews.css';
 
-export function Reviews({ spotId , onReviewChange}) { // also pass function here
+export function Reviews({ spotId , onReviewChange, isOwner}) { // also pass function here as hook
   const dispatch = useDispatch();
   const sessionUser = useSelector(state => state.session.user);
   const reviews = useSelector(state => state.reviews.spotReviews);
+
   const allReviews = Object.values(reviews);
+  const sortedReviews = allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));// make newly created current review goes to the top of the review list
 
   const spot = useSelector(state => state.allSpots.singleSpot); 
 
@@ -45,14 +47,14 @@ export function Reviews({ spotId , onReviewChange}) { // also pass function here
 
   let canPostReview = false;
 
-  if (sessionUser && spot) { // check if the person is log in and also the spot exists
+  if (sessionUser && spot && !isOwner) { // check if the person is log in and also the spot exists
     const hasUserReviewed = allReviews.find(review => review.userId === sessionUser.id); // check if the person has posted review on this spot before or not
-    const isOwner = sessionUser.id === spot.ownerId; // check if this person is the owner of this place or not
 
-    if (!hasUserReviewed && !isOwner) { // if this person hasn't post any review for this place yet and also he is not the owner of ths place
+
+    if (!hasUserReviewed) { // if this person hasn't post any review for this place yet and also he is not the owner of ths place
       canPostReview = true; 
     }
-}
+ }
 
 
   const handleOpenModal = () => {
@@ -146,7 +148,7 @@ export function Reviews({ spotId , onReviewChange}) { // also pass function here
       </div>
 
       <div className="reviews-content">
-        {canPostReview && (
+        {!isOwner && canPostReview && ( // change here 
           <button onClick={handleOpenModal} className="post-review-button">
             Post Your Review
           </button>
@@ -191,7 +193,7 @@ export function Reviews({ spotId , onReviewChange}) { // also pass function here
         </div>
       )}
 
-      {allReviews.map((review) => (
+      {sortedReviews.map((review) => (
         <div key={review.id} className="review">
           <h3>{review.User.firstName}</h3>
           <p>

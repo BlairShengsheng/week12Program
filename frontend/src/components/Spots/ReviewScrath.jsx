@@ -9,9 +9,8 @@ import { setAllSpotsThunks, updateASpotThunk, getAspotThunk  } from '../../store
 //! --------------------------------------------------------------------
 export function EditSpot() {
   const { spotId } = useParams();//------add this part
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const spot = useSelector(state => state.allSpots.singleSpot);//------add this part
   // console.log('Single Spot Data:', spot);
 
@@ -27,15 +26,9 @@ export function EditSpot() {
   const [lat, setLat] = useState(""); // Added latitude field
   const [lng, setLng] = useState(""); // Added longitude field
 
-  // Validation state
+  //validation state
   const [errors, setErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
- 
-
-  //! --------------------------------------------------------------------
-  //                          Handle Form Submit
-  //! --------------------------------------------------------------------
 
   useEffect(() => {
     dispatch(getAspotThunk(spotId))
@@ -58,6 +51,13 @@ export function EditSpot() {
   }, [spot]);
 
 
+
+   //! --------------------------------------------------------------------
+  //                          Handle Form Submit
+  //! --------------------------------------------------------------------
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setHasSubmitted(true);
@@ -65,45 +65,32 @@ export function EditSpot() {
     const validationErrors = {};
 
     // Validate all fields
-    if (!country.trim()) validationErrors.country = "Country is required";
-    if (!address.trim()) validationErrors.address = "Address is required";
-    if (!city.trim()) validationErrors.city = "City is required";
-    if (!state.trim()) validationErrors.state = "State is required";
-    if (!description.trim()) validationErrors.description = "Description is required";
-    else if (description.length < 30) validationErrors.description = "Description needs 30 or more characters";
-    if (!title.trim()) validationErrors.title = "Name is required";
-    if (!price) validationErrors.price = "Price per night is required";
-    if (!lat) validationErrors.lat = "Latitude is required";
-    else if (isNaN(lat) ||lat < -90 || lat > 90) validationErrors.lat = "Latitude must be between -90 and 90";
-    if (!lng) validationErrors.lng = "Longitude is required";
-    else if (isNaN(lng) ||lng < -180 || lng > 180) validationErrors.lng = "Longitude must be between -180 and 180";
-    
-    if (!preImageURL) validationErrors.preImageURL = "Preview Image URL is required";
-    else if (!preImageURL.match(/\.(png|jpg|jpeg)$/i)) {
-      validationErrors.preImageURL = "Image URL must end in .png, .jpg, or .jpeg";
-    }
+    if (!country) validationErrors.country = "Country is required";
+    if (!address) validationErrors.address = "Address is required";
+    if (!city) validationErrors.city = "City is required";
+    if (!state) validationErrors.state = "State is required";
+    if (!description || description.length < 30) validationErrors.description = "Description needs a minimum of 30 characters";
+    if (!title) validationErrors.title = "Name is required";
+    if (!price || price <= 0) validationErrors.price = "Price is required";
+    if (!lat || lat < -90 || lat > 90) validationErrors.lat = "Latitude must be between -90 and 90."; // Validation for lat
+    if (!lng || lng < -180 || lng > 180) validationErrors.lng = "Longitude must be between -180 and 180."; // Validation for lng
+    // if (!imagesURL || !imagesURL.match(/\.(png|jpg|jpeg)$/i)) validationErrors.imagesURL = "Image URL must end in .png, .jpg, or .jpeg";
+    if (!preImageURL || !preImageURL.match(/\.(png|jpg|jpeg)$/i)) validationErrors.preImageURL = "Preview image is required";
 
-    
+
+    // Validate each URL in the imagesURL array
     imagesURL.forEach((url, index) => {
-      // Only validate empty image URLs
-      if(!url){validationErrors[`image${index}`] = "Detail Image is required";}
-
-      // Only validate non-empty image URLs
-      if (url && !url.match(/\.(png|jpg|jpeg)$/i)) {
-        validationErrors[`image${index}`] = "Image URL must end in .png, .jpg, or .jpeg";
+      if (!url.match(/\.(png|jpg|jpeg)$/i)) {
+       validationErrors[`image${index}`] = `Image URL ${index + 1} must end in .png, .jpg, or .jpeg`;
       }
-    });
-
-    setErrors(validationErrors); // Update errors state
-
-
+    })
   
     
 
     if(Object.keys(validationErrors).length > 0){
+      setErrors(validationErrors); // Update errors state
       return;
     }
-
 
     // let name = title
     const spotData = {
@@ -123,15 +110,17 @@ export function EditSpot() {
 
 
     const updatedSpot = await dispatch(updateASpotThunk (spotData));
-    if(updatedSpot && updatedSpot.id) {
-      // await dispatch(setAllSpotsThunks());
-      navigate(`/spots/${updatedSpot.id}`)
-      await dispatch(setAllSpotsThunks());
-    }
-
+      if(updatedSpot && updatedSpot.id) {
+        // await dispatch(setAllSpotsThunks());
+        navigate(`/spots/${updatedSpot.id}`)
+        await dispatch(setAllSpotsThunks());
+      }
   
     
   };
+  
+  
+  
   
 
   //! --------------------------------------------------------------------
@@ -139,71 +128,54 @@ export function EditSpot() {
   //! --------------------------------------------------------------------
   return (
     <div className="form-container">
-
+      <h1>Update Your Spot</h1>
+      <h2>Where&apos;s your place located?</h2>
+      <h4>Guests will only get your exact address once they&apos;ve booked a reservation</h4>
 
       <form onSubmit={handleSubmit}>
-        <h1>Create A New Spot</h1>
-
-        {hasSubmitted && Object.keys(errors).length > 0 && (
-          <div className="error-summary">
-            {Object.values(errors).map((error, index) => (
-              <p key={index} className="error-message">{error}</p>
-            ))}
-          </div>
-        )}
-
-
-
-        <h2>Where&apos;s your place located?</h2>
-        <h4>Guests will only get your exact address once they&apos;ve booked a reservation</h4>
-
-        <label>Country
+        <label>Country</label>
         <input
           type="text"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
           placeholder="Country"
-          className={hasSubmitted && errors.country ? 'error' : ''}
+          
         />
         {hasSubmitted && errors.country && <p className="error-message">{errors.country}</p>}
-        </label>
 
-        <label>Street Address
-         <input
+        <label>Street Address</label>
+        <input
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Address"
-          className={hasSubmitted && errors.address ? 'error' : ''}
-         />
-         {hasSubmitted && errors.address && <p className="error-message">{errors.address}</p>}
-        </label>
+          
+        />
+        {hasSubmitted && errors.address && <p className="error-message">{errors.address}</p>}
 
         <div className="city-state-container">
           <div className="input-group">
-            <label>City
-             <input
+            <label>City</label>
+            <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="City"
-              className={hasSubmitted && errors.city ? 'error' : ''}
-             />
-             {hasSubmitted && errors.city && <p className="error-message">{errors.city}</p>}
-            </label>
+              
+            />
+            {hasSubmitted && errors.city && <p className="error-message">{errors.city}</p>}
           </div>
 
           <div className="input-group">
-            <label>State
-             <input
+            <label>State</label>
+            <input
               type="text"
               value={state}
               onChange={(e) => setState(e.target.value)}
               placeholder="STATE"
-              className={hasSubmitted && errors.state ? 'error' : ''}
-             />
-             {hasSubmitted && errors.state && <p className="error-message">{errors.state}</p>}
-            </label>
+              
+            />
+            {hasSubmitted && errors.state && <p className="error-message">{errors.state}</p>}
           </div>
         </div>
 
@@ -212,29 +184,27 @@ export function EditSpot() {
 
         <div className="city-state-container">
           <div className="input-group">
-           <label>Latitude
-             <input
+            <label>Latitude</label>
+            <input
               type="text"
               value={lat}
               onChange={(e) => setLat(e.target.value)}
               placeholder="Lat"
-              className={hasSubmitted && errors.lat ? 'error' : ''}
-             />
-             {hasSubmitted && errors.city && <p className="error-message">{errors.lat}</p>}
-            </label>
+              
+            />
+            {hasSubmitted && errors.city && <p className="error-message">{errors.lat}</p>}
           </div>
 
           <div className="input-group">
-            <label>Longtitude
-             <input
+            <label>Longtitude</label>
+            <input
               type="text"
               value={lng}
               onChange={(e) => setLng(e.target.value)}
-              placeholder="Lng"
-              className={hasSubmitted && errors.lng ? 'error' : ''}
-             />
-             {hasSubmitted && errors.state && <p className="error-message">{errors.lng}</p>}
-            </label>
+              placeholder="Long"
+              
+            />
+            {hasSubmitted && errors.state && <p className="error-message">{errors.lng}</p>}
           </div>
         </div>
 
@@ -280,15 +250,12 @@ export function EditSpot() {
           <h2>Set a base price for your spot</h2>
           <h4>Competitive pricing can help your listing stand out and rank higher in search results.</h4>
 
-          <div className="money">
-            <span className="dollar-sign">$</span>
-            <textarea
-              id="price-area"
-              placeholder="Price per night (USD)"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            ></textarea>
-          </div>
+          $<textarea
+            id="price-area"
+            placeholder="Price per night (USD)"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          ></textarea>
 
           {hasSubmitted && errors.price && <p className="error-message">{errors.price}</p>}
         </div>
@@ -296,36 +263,73 @@ export function EditSpot() {
         <br />
 
         <div className="photo-container">
-          <h2>Liven up your spot with photos</h2>
+          <h2>Live up your spot with photos</h2>
           <h4>Submit a link to at least one photo to publish your spot</h4>
 
-          <label>
-            Preview Image URL
-            <input
-              type="text"
-              value={preImageURL}
-              onChange={(e) => setPreImageURL(e.target.value)}
-              placeholder="Preview Image URL"
-            />
-            {hasSubmitted && errors.preImageURL && <p className="error-message">{errors.preImageURL}</p>}
-          </label>
+          <textarea
+            id="image-url-area"
+            placeholder="Preview Image URL"
+            value={preImageURL}
+            onChange={(e) => setPreImageURL(e.target.value)}
+          ></textarea>
 
-          {imagesURL.map((url, index) => (
-            <label key={index}>
-              Image URL {index + 1}
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => {
-                  const updatedImages = [...imagesURL];
-                  updatedImages[index] = e.target.value;
-                  setImagesURL(updatedImages);
-                }}
-                placeholder={`Image URL ${index + 1}`}
-              />
-              {hasSubmitted && errors[`image${index}`] && <p className="error-message">{errors[`image${index}`]}</p>}
-            </label>
-          ))}
+          {hasSubmitted && errors.preImageURL && <p className="error-message">{errors.preImageURL}</p>}
+
+ 
+          <textarea
+            id="image-url-area"
+            placeholder="Image URL1"
+            value={imagesURL[0]}  // Use index 0 for the first URL
+            onChange={(e) => {
+              const updatedImages = [...imagesURL];
+              updatedImages[0] = e.target.value;
+              setImagesURL(updatedImages);
+            }}
+          ></textarea>
+
+          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
+
+
+          <textarea
+            id="image-url-area"
+            placeholder="Image URL2"
+            value={imagesURL[1]}  // Use index 0 for the first URL
+            onChange={(e) => {
+              const updatedImages = [...imagesURL];
+              updatedImages[1] = e.target.value;
+              setImagesURL(updatedImages);
+            }}
+          ></textarea>
+
+          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
+
+
+          <textarea
+            id="image-url-area"
+            placeholder="Image URL3"
+            value={imagesURL[2]}  // Use index 0 for the first URL
+            onChange={(e) => {
+              const updatedImages = [...imagesURL];
+              updatedImages[2] = e.target.value;
+              setImagesURL(updatedImages);
+            }}
+          ></textarea>
+
+          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
+
+
+          <textarea
+            id="image-url-area"
+            placeholder="Image URL4"
+            value={imagesURL[3]}  // Use index 0 for the first URL
+            onChange={(e) => {
+              const updatedImages = [...imagesURL];
+              updatedImages[3] = e.target.value;
+              setImagesURL(updatedImages);
+            }}
+          ></textarea>
+
+          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
         </div>
 
         <button id="create-spot-button" type="submit">
@@ -335,4 +339,5 @@ export function EditSpot() {
       <br />
     </div>
   );
+
 }

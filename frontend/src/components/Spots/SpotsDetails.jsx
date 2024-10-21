@@ -15,16 +15,14 @@ export function SpotsDetails() {
   const { spotId } = useParams();
   const spots = useSelector((state) => state.allSpots.allSpots);
   const spot = Object.values(spots).find((spot) => spot.id === Number(spotId));
-  // console.log("let me see what is inside:", spot.previewImage)
-  // const spot = spots[spotId];
+
+  const sessionUser = useSelector(state => state.session.user);
+  
 
   const reviews = useSelector( state => state.reviews.spotReviews);//an object
   const reviewArray = Object.values(reviews)//an array of reviews' objects
 
-  // const starValues = reviewArray .map(review => review.stars)// an array of all star values
-  // const totalStar = starValues.reduce((sum, star) => sum + star,0)
-  // const avgStar = totalStar/ starValues.length;
-  // console.log("please show me inside:", avgStar);
+  
 
   const [theStar, setStar] = useState(0);
 
@@ -51,9 +49,13 @@ export function SpotsDetails() {
     return <h1>Spot Not Found</h1>;
   }
 
+   // Determine if the current user is the owner of the spot
+   const isOwner = sessionUser && sessionUser.id === spot.ownerId;
+
   return (
     <div className="spots-detail-container">
       <h1>{spot.name}</h1>
+       
       <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
 
       <div className="image-gallery">
@@ -76,7 +78,9 @@ export function SpotsDetails() {
 
       <div className="spot-info-container">
         <div className="spot-description">
-          <h2>Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}</h2>
+          {/* <h2>Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}</h2> */}
+          <h2>Hosted by {spot.Owner?.firstName}</h2>
+         
           <p>{spot.description}</p>
         </div>
 
@@ -85,13 +89,14 @@ export function SpotsDetails() {
             <span className="price">${spot.price} night</span>
             <span className="rating">★ {theStar > 0 ? theStar.toFixed(1): "New"} · {reviewArray.length > 1 ? "reivews": "review"}</span>
           </div>
-          <button className="reserve-button">Reserve</button>
+          <button className="reserve-button" onClick={() => alert('Features coming soon.')}>Reserve</button>
         </div>
       </div>
 
       <Reviews 
         spotId={spot.id} 
         onReviewChange={() => dispatch(getSpotReviewsThunk(spotId))}// refetch all the reviews agains/ like a hook over here
+        isOwner={isOwner}
 
 
       />

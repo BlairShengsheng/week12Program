@@ -51,7 +51,7 @@ module.exports = {
     "price": 329
    },
    {
-    "ownerId": 4,
+    "ownerId": 3,
     "address": "326 Cobber Rd",
     "city": "Winter Vally",
     "state": "New York",
@@ -63,7 +63,7 @@ module.exports = {
     "price": 500
    },
    {
-    "ownerId": 5,
+    "ownerId": 1,
     "address": "693 groveland Street",
     "city": "Groveland",
     "state": "Colorado",

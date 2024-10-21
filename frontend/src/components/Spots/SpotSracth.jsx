@@ -1,17 +1,19 @@
-import './CreateASpot.css';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Use `useNavigate` from react-router-dom
-import { useDispatch} from 'react-redux';
-
-import { setAllSpotsThunks, createASpotThunk } from '../../store/spots';
+import './CreateASpot';
+import {useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAllSpotsThunks, updateASpotThunk, getAspotThunk  } from '../../store/spots';
 
 //! --------------------------------------------------------------------
 //*                          CreateSpots Component
 //! --------------------------------------------------------------------
-export function CreateASpot() {
-  
+export function EditSpot() {
+  const { spotId } = useParams();//------add this part
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
+
+  const spot = useSelector(state => state.allSpots.singleSpot);//------add this part
+  // console.log('Single Spot Data:', spot);
 
   const [country, setCountry] = useState("");
   const [address, setAddress] = useState("");
@@ -36,22 +38,24 @@ export function CreateASpot() {
   //! --------------------------------------------------------------------
 
   useEffect(() => {
-    return () =>{
-      // Reset the form
-      setCountry("");
-      setAddress("");
-      setCity("");
-      setState("");
-      setPrice("");
-      setLat(""); // Reset lat
-      setLng(""); // Reset lng
-      setTitle("");
-      setDescription("");
-      setImagesURL(["", "", "", ""]);
-      setPreImageURL("");
-      setHasSubmitted(false); // Reset form state
+    dispatch(getAspotThunk(spotId))
+  },[dispatch, spotId])
+
+  useEffect(() => {
+    if (spot) {
+      setCountry(spot.country || "");
+      setAddress(spot.address || "");
+      setCity(spot.city || "");
+      setState(spot.state || "");
+      setDescription(spot.description || "");
+      setPrice(spot.price || "");
+      setTitle(spot.name || "");
+      setLat(spot.lat || "");
+      setLng(spot.lng || "");
+      setPreImageURL(spot.previewImage || "");
+      setImagesURL(spot.images || ["","","",""]);
     }
-  },[]);
+  }, [spot]);
 
 
   const handleSubmit = async (e) => {
@@ -100,8 +104,10 @@ export function CreateASpot() {
       return;
     }
 
-    let name = title
+
+    // let name = title
     const spotData = {
+      id: spotId,
       country,
       address,
       city,
@@ -110,17 +116,19 @@ export function CreateASpot() {
       preImageURL,
       description,
       price,
-      name,
+      name: title,
       lat,
       lng,
-
     }
-    const newSpot = await dispatch(createASpotThunk(spotData));
-      if(newSpot && newSpot.id) {
-        // await dispatch(setAllSpotsThunks());
-        navigate(`/spots/${newSpot.id}`)
-        await dispatch(setAllSpotsThunks());
-      }
+
+
+    const updatedSpot = await dispatch(updateASpotThunk (spotData));
+    if(updatedSpot && updatedSpot.id) {
+      // await dispatch(setAllSpotsThunks());
+      navigate(`/spots/${updatedSpot.id}`)
+      await dispatch(setAllSpotsThunks());
+    }
+
   
     
   };
@@ -321,7 +329,7 @@ export function CreateASpot() {
         </div>
 
         <button id="create-spot-button" type="submit">
-          Create Spot
+          Update Spot
         </button>
       </form>
       <br />

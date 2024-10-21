@@ -15,7 +15,6 @@ function LoginFormModal() {
 
   const handleSubmit = (e) => {
     
-
     e.preventDefault();
     setErrors({});
     return dispatch(sessionActions.login(credential, password))
@@ -27,6 +26,16 @@ function LoginFormModal() {
         }
       });
   };
+
+  const loginDemo = async (e) => {
+    e.preventDefault();
+      await dispatch(sessionActions.login(
+        "Demo-lition",
+        "password"
+      ));
+      closeModal();
+    }
+  const disableLoginButton = !(credential.length >= 4 && password.length >= 6); 
 
   return (
     <>
@@ -41,6 +50,8 @@ function LoginFormModal() {
             required
           />
         </label>
+        {errors.credential && (<p>{errors.credential}</p>)}
+
         <label>
           Password
           <input
@@ -50,12 +61,16 @@ function LoginFormModal() {
             required
           />
         </label>
-        {errors.credential && (
-          <p>{errors.credential}</p>
-        )}
-        <button type="submit">Log In</button>
+        {errors.password && (<p>{errors.password}</p>)}
+
+        <button type="submit" disabled={disableLoginButton}>Log In</button>
+        <button onClick={loginDemo}className="demo-user-button">Log in as Demo User</button> 
+           
       </form>
-    </>
+      
+
+      
+      </>
   );
 }
 
