@@ -1,343 +1,237 @@
-import './CreateASpot';
-import {useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAllSpotsThunks, updateASpotThunk, getAspotThunk  } from '../../store/spots';
+import { getSpotReviewsThunk, createReviewThunk, deleteReviewThunk } from '../../store/reviews';
+import './Reviews.css';
 
-//! --------------------------------------------------------------------
-//*                          EditSpots Component
-//! --------------------------------------------------------------------
-export function EditSpot() {
-  const { spotId } = useParams();//------add this part
-  const navigate = useNavigate();
+export function Reviews({ spotId , onReviewChange, isOwner}) { // also pass function here as hook
   const dispatch = useDispatch();
-  const spot = useSelector(state => state.allSpots.singleSpot);//------add this part
-  // console.log('Single Spot Data:', spot);
+  const sessionUser = useSelector(state => state.session.user);
+  const reviews = useSelector(state => state.reviews.spotReviews);
 
-  const [country, setCountry] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [imagesURL, setImagesURL] = useState(["","","",""]);
-  const [preImageURL, setPreImageURL] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [title, setTitle] = useState("");
-  const [lat, setLat] = useState(""); // Added latitude field
-  const [lng, setLng] = useState(""); // Added longitude field
+  const allReviews = Object.values(reviews);
+  const sortedReviews = allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));// make newly created current review goes to the top of the review list
 
-  //validation state
+  const spot = useSelector(state => state.allSpots.singleSpot); 
+
+  const [showModal, setShowModal] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [rating, setRating] = useState(0);
   const [errors, setErrors] = useState({});
-  const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  useEffect(() => {
-    dispatch(getAspotThunk(spotId))
-  },[dispatch, spotId])
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reviewIdToDelete, setReviewIdToDelete] = useState(null);
 
+
+  const [theStar, setStar] = useState(0);
   useEffect(() => {
-    if (spot) {
-      setCountry(spot.country || "");
-      setAddress(spot.address || "");
-      setCity(spot.city || "");
-      setState(spot.state || "");
-      setDescription(spot.description || "");
-      setPrice(spot.price || "");
-      setTitle(spot.name || "");
-      setLat(spot.lat || "");
-      setLng(spot.lng || "");
-      setPreImageURL(spot.previewImage || "");
-      setImagesURL(spot.images || ["","","",""]);
+    if (allReviews.length > 0) {
+      const starValues = allReviews.map(review => review.stars);
+      const totalStars = starValues.reduce((sum, star) => sum + star, 0);
+      const avgStar = totalStars/ starValues.length;
+      setStar(avgStar); // theStar = avgStar
     }
-  }, [spot]);
+  }, [allReviews]);
 
 
-
-   //! --------------------------------------------------------------------
-  //                          Handle Form Submit
-  //! --------------------------------------------------------------------
-
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setHasSubmitted(true);
-
-    const validationErrors = {};
-
-    // Validate all fields
-    if (!country) validationErrors.country = "Country is required";
-    if (!address) validationErrors.address = "Address is required";
-    if (!city) validationErrors.city = "City is required";
-    if (!state) validationErrors.state = "State is required";
-    if (!description || description.length < 30) validationErrors.description = "Description needs a minimum of 30 characters";
-    if (!title) validationErrors.title = "Name is required";
-    if (!price || price <= 0) validationErrors.price = "Price is required";
-    if (!lat || lat < -90 || lat > 90) validationErrors.lat = "Latitude must be between -90 and 90."; // Validation for lat
-    if (!lng || lng < -180 || lng > 180) validationErrors.lng = "Longitude must be between -180 and 180."; // Validation for lng
-    // if (!imagesURL || !imagesURL.match(/\.(png|jpg|jpeg)$/i)) validationErrors.imagesURL = "Image URL must end in .png, .jpg, or .jpeg";
-    if (!preImageURL || !preImageURL.match(/\.(png|jpg|jpeg)$/i)) validationErrors.preImageURL = "Preview image is required";
-
-
-    // Validate each URL in the imagesURL array
-    imagesURL.forEach((url, index) => {
-      if (!url.match(/\.(png|jpg|jpeg)$/i)) {
-       validationErrors[`image${index}`] = `Image URL ${index + 1} must end in .png, .jpg, or .jpeg`;
-      }
-    })
   
-    
 
-    if(Object.keys(validationErrors).length > 0){
-      setErrors(validationErrors); // Update errors state
+  useEffect(() => {
+    
+    dispatch(getSpotReviewsThunk(spotId))// same as using: onReviewChange();
+    
+      .then(() => console.log('reviews fetched successfully!'))
+      .catch(error => console.error('Error fetching reviews:', error));
+  }, [dispatch, spotId]);
+
+
+
+  let canPostReview = false;
+
+  if (sessionUser && spot && !isOwner) { // check if the person is log in and also the spot exists
+    const hasUserReviewed = allReviews.find(review => review.userId === sessionUser.id); // check if the person has posted review on this spot before or not
+
+
+    if (!hasUserReviewed) { // if this person hasn't post any review for this place yet and also he is not the owner of ths place
+      canPostReview = true; 
+    }
+ }
+
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+    setReviewText('');
+    setRating(0);
+    setErrors({});
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleStarHover = (hoveredRating) => {
+    if (!rating) setRating(hoveredRating);
+  };
+
+  const handleStarClick = (clickedRating) => {
+    setRating(clickedRating);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setErrors({});
+  
+    if (reviewText.length < 10) {
+      setErrors({review: "Review must be at least 10 characters long"});
       return;
     }
-
-    // let name = title
-    const spotData = {
-      id: spotId,
-      country,
-      address,
-      city,
-      state,
-      imagesURL,
-      preImageURL,
-      description,
-      price,
-      name: title,
-      lat,
-      lng,
+    if (rating === 0) {
+      setErrors({rating: "Please select a star rating"});
+      return;
     }
-
-
-    const updatedSpot = await dispatch(updateASpotThunk (spotData));
-      if(updatedSpot && updatedSpot.id) {
-        // await dispatch(setAllSpotsThunks());
-        navigate(`/spots/${updatedSpot.id}`)
-        await dispatch(setAllSpotsThunks());
+  
+    const reviewData = { review: reviewText, stars: rating };
+    try {
+      const result = await dispatch(createReviewThunk(spotId, reviewData));
+      if (result && result.id) {
+        handleCloseModal();
+        dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after submission same as using : onReviewChange();
+      } else {
+        setErrors({ submission: "Failed to submit review. Please try again." });
       }
-  
-    
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setErrors({ submission: "An error occurred. Please try again." });
+    }
   };
-  
-  
-  
-  
 
-  //! --------------------------------------------------------------------
-  //                         Return JSX HTML Part
-  //! --------------------------------------------------------------------
+  const handleDeleteClick = (reviewId) => {
+    setShowDeleteModal(true);
+    setReviewIdToDelete(reviewId);
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      if(reviewIdToDelete){
+        await dispatch(deleteReviewThunk(reviewIdToDelete));
+        // await dispatch(getSpotReviewsThunk(spotId)); // Refresh reviews after deletion
+        await onReviewChange();
+        setShowDeleteModal(false);
+        setReviewIdToDelete(null);
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setReviewIdToDelete(null);
+  }
+
   return (
-    <div className="form-container">
-      <h1>Update Your Spot</h1>
-      <h2>Where&apos;s your place located?</h2>
-      <h4>Guests will only get your exact address once they&apos;ve booked a reservation</h4>
+    <div className="reviews-section">
+      <div className="reviews-header">
+        {/* <h2>
+          ★{" "}
+          {theStar > 0 && allReviews.length !== 0 ? theStar.toFixed(1) : "New"}{" "}
+          · {allReviews.length} {allReviews.length > 1 ? "reivews" : "review"}
+        </h2> */}
 
-      <form onSubmit={handleSubmit}>
-        <label>Country</label>
-        <input
-          type="text"
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          placeholder="Country"
-          
-        />
-        {hasSubmitted && errors.country && <p className="error-message">{errors.country}</p>}
+        <h2>
+          ★{" "}
+          {theStar > 0 && allReviews.length !== 0
+            ? `${theStar.toFixed(1)} · ${allReviews.length} ${
+                allReviews.length > 1 ? "reviews" : "review"
+              }`
+            : "New"}
+        </h2>
+      </div>
 
-        <label>Street Address</label>
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address"
-          
-        />
-        {hasSubmitted && errors.address && <p className="error-message">{errors.address}</p>}
+      <div className="reviews-content">
+        {!isOwner && canPostReview && ( // change here 
+          <button onClick={handleOpenModal} className="post-review-button">
+            Post Your Review
+          </button>
+        )}
 
-        <div className="city-state-container">
-          <div className="input-group">
-            <label>City</label>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City"
-              
-            />
-            {hasSubmitted && errors.city && <p className="error-message">{errors.city}</p>}
+        {allReviews.length === 0 && canPostReview && (
+          <h4>Be the first to post a review!</h4>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="review-modal">
+          <h3>How was your stay?</h3>
+          <textarea
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+            placeholder="Leave your review here..."
+          />
+          {errors.review && <p className="error">{errors.review}</p>}
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`star ${star <= rating ? "filled" : ""}`}
+                onMouseEnter={() => handleStarHover(star)}
+                onMouseLeave={() => handleStarHover(0)}
+                onClick={() => handleStarClick(star)}
+              >
+                ★
+              </span>
+            ))}
+            <span>Stars</span>
           </div>
-
-          <div className="input-group">
-            <label>State</label>
-            <input
-              type="text"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              placeholder="STATE"
-              
-            />
-            {hasSubmitted && errors.state && <p className="error-message">{errors.state}</p>}
-          </div>
+          {errors.rating && <p className="error">{errors.rating}</p>}
+          <button
+            onClick={handleSubmitReview}
+            disabled={reviewText.length < 10 || rating === 0}
+          >
+            Submit Your Review
+          </button>
+          <button onClick={handleCloseModal}>Cancel</button>
         </div>
+      )}
 
+      {sortedReviews.map((review) => (
+        <div key={review.id} className="review">
+          <h3>{review.User.firstName}</h3>
+          <p>
+            {new Date(review.createdAt).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+          <p>{review.review}</p>
 
-
-
-        <div className="city-state-container">
-          <div className="input-group">
-            <label>Latitude</label>
-            <input
-              type="text"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-              placeholder="Lat"
-              
-            />
-            {hasSubmitted && errors.city && <p className="error-message">{errors.lat}</p>}
-          </div>
-
-          <div className="input-group">
-            <label>Longtitude</label>
-            <input
-              type="text"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-              placeholder="Long"
-              
-            />
-            {hasSubmitted && errors.state && <p className="error-message">{errors.lng}</p>}
-          </div>
+          {sessionUser && sessionUser.id === review.userId && (
+            <button
+              onClick={() => handleDeleteClick(review.id)}
+              className="delete-review-button"
+            >
+              Delete
+            </button>
+          )}
         </div>
+      ))}
 
-
-
-
-
-        <br />
-
-        <div className="description-container">
-          <h2>Describe your place to guests</h2>
-          <h4>Mention the best features of your space, any special amenities like fast wifi or parking‘ and what you love about the neighborhood.</h4>
-
-          <textarea
-            id="description-area"
-            placeholder="Please write at least 30 characters"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
-
-          {hasSubmitted && errors.description && <p className="error-message">{errors.description}</p>}
+      {showDeleteModal && (
+        <div className="delete-container">
+          <h2>Confirm Delete</h2>
+          <h4>Are you sure you want to delete this review?</h4>
+          <button
+            onClick={handleConfirmDelete}
+            className="confirm-delete-button"
+          >
+            Yes (Delete Review)
+          </button>
+          <button onClick={handleCancelDelete} className="cancel-delete-button">
+            No (Keep Review)
+          </button>
         </div>
-
-        <br />
-
-        <div className="title-container">
-          <h2>Create a title for your spot</h2>
-          <h4>Catch guests&apos; attention with a spot title that highlights what makes your place special.</h4>
-
-          <textarea
-            id="title-area"
-            placeholder="Name of your spot"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          ></textarea>
-
-          {hasSubmitted && errors.title && <p className="error-message">{errors.title}</p>}
-        </div>
-
-        <br />
-
-        <div className="price-container">
-          <h2>Set a base price for your spot</h2>
-          <h4>Competitive pricing can help your listing stand out and rank higher in search results.</h4>
-
-          $<textarea
-            id="price-area"
-            placeholder="Price per night (USD)"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          ></textarea>
-
-          {hasSubmitted && errors.price && <p className="error-message">{errors.price}</p>}
-        </div>
-
-        <br />
-
-        <div className="photo-container">
-          <h2>Live up your spot with photos</h2>
-          <h4>Submit a link to at least one photo to publish your spot</h4>
-
-          <textarea
-            id="image-url-area"
-            placeholder="Preview Image URL"
-            value={preImageURL}
-            onChange={(e) => setPreImageURL(e.target.value)}
-          ></textarea>
-
-          {hasSubmitted && errors.preImageURL && <p className="error-message">{errors.preImageURL}</p>}
-
- 
-          <textarea
-            id="image-url-area"
-            placeholder="Image URL1"
-            value={imagesURL[0]}  // Use index 0 for the first URL
-            onChange={(e) => {
-              const updatedImages = [...imagesURL];
-              updatedImages[0] = e.target.value;
-              setImagesURL(updatedImages);
-            }}
-          ></textarea>
-
-          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
-
-
-          <textarea
-            id="image-url-area"
-            placeholder="Image URL2"
-            value={imagesURL[1]}  // Use index 0 for the first URL
-            onChange={(e) => {
-              const updatedImages = [...imagesURL];
-              updatedImages[1] = e.target.value;
-              setImagesURL(updatedImages);
-            }}
-          ></textarea>
-
-          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
-
-
-          <textarea
-            id="image-url-area"
-            placeholder="Image URL3"
-            value={imagesURL[2]}  // Use index 0 for the first URL
-            onChange={(e) => {
-              const updatedImages = [...imagesURL];
-              updatedImages[2] = e.target.value;
-              setImagesURL(updatedImages);
-            }}
-          ></textarea>
-
-          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
-
-
-          <textarea
-            id="image-url-area"
-            placeholder="Image URL4"
-            value={imagesURL[3]}  // Use index 0 for the first URL
-            onChange={(e) => {
-              const updatedImages = [...imagesURL];
-              updatedImages[3] = e.target.value;
-              setImagesURL(updatedImages);
-            }}
-          ></textarea>
-
-          {hasSubmitted && errors.imagesURL && <p className="error-message">{errors.imagesURL}</p>}
-        </div>
-
-        <button id="create-spot-button" type="submit">
-          Update Spot
-        </button>
-      </form>
-      <br />
+      )}
     </div>
   );
-
 }
+
+export default Reviews;
