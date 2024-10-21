@@ -34,8 +34,6 @@ export function Spots() {
         const spotReviews = Object.values(reviews).filter(review => review.spotId === spot.id);
         
         if (spotReviews.length > 0) {
-          // Assuming the star rating is stored in a property of the review object
-          // Adjust this line based on where the star rating is actually stored
           const starValues = spotReviews.map(review => review.stars);
           const totalStars = starValues.reduce((sum, stars) => sum + stars, 0);
           avgRating = (totalStars / starValues.length).toFixed(1);

@@ -63,7 +63,7 @@ body {
 .star-icon {
   position: absolute;
   right: 10px;
-  top: 10px;
+  bottom: 10px;
   padding: 5px;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
