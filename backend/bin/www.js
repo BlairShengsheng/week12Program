@@ -2,7 +2,7 @@
 // backend/bin/www
 
 // Import environment variables
-require('dotenv').config();
+//require('dotenv').config();
 
 const { port } = require('../config');
 
